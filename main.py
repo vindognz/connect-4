@@ -31,7 +31,7 @@ def printBoard(board):
     for i in range(6):
         row = ""
         for column in board:
-            row += "|" + column[i]
+            row += "| " + column[i] + " "
         row += "|"
         rows.append(row)
 
@@ -41,7 +41,7 @@ def printBoard(board):
     for row in rows:
         toPrint += (row + "\n")
 
-    print(f"===============\n{toPrint[:-1]}\n===============")
+    print(f"=============================\n{toPrint[:-1]}\n=============================")
 
 def getIntInput(prompt):
     success = False
@@ -77,18 +77,20 @@ turn = 'R'
 
 while playing:
     clear()
-
-    chosenColumn = getIntInput(f"{turn} where do you want to drop your tile? 1-7.\n>>> ")
-
-    try:
-        tile = findLowest(board, chosenColumn)
-    except ValueError:
-        print("You chose a column that is full. Try again")
-    
-    board[chosenColumn][tile] = turn
-
     printBoard(board)
 
-    input()
+    tile = ""
+    while tile == "":
+        try:
+            chosenColumn = getIntInput(f"{turn} where do you want to drop your tile? 0-6.\n>>> ")
+            tile = findLowest(board, chosenColumn)
+            break
+        except ValueError:
+            print("You chose a column that is full. Try again")
+            clear()
+            printBoard(board)
+            tile = ""
+    
+    board[chosenColumn][tile] = turn
 
     turn = 'Y' if turn == 'R' else 'R'
