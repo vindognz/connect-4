@@ -43,6 +43,19 @@ def printBoard(board):
 
     print(f"===============\n{toPrint[:-1]}\n===============")
 
+def getIntInput(prompt):
+    success = False
+    inp = ""
+    while not success:
+        inp = input(prompt)
+        try:
+            inp = int(inp)
+            break
+        except:
+            print("Only integers allowed")
+    
+    return inp
+
 # Board will be 7x6.
 
 # O = open, R = red, Y = yellow
@@ -65,10 +78,7 @@ turn = 'R'
 while playing:
     clear()
 
-    try:
-        chosenColumn = int(input(f"{turn} where do you want to drop your tile? 1-7.\n>>> "))
-    except Exception as e:
-        print("Please enter a positive integer.")
+    chosenColumn = getIntInput(f"{turn} where do you want to drop your tile? 1-7.\n>>> ")
 
     try:
         tile = findLowest(board, chosenColumn)
