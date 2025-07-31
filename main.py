@@ -1,5 +1,6 @@
 import os
 import sys
+from colours import Colours
 
 def clear():
     if sys.platform.startswith('win'):
@@ -75,7 +76,7 @@ board = [
 ]
 
 playing = True
-turn = 'R'
+turn = f'{Colours.RED}{Colours.BOLD}R{Colours.END}'
 
 while playing:
     clear()
@@ -100,4 +101,4 @@ while playing:
     
     board[chosenColumn][tile] = turn
 
-    turn = 'Y' if turn == 'R' else 'R'
+    turn = f'{Colours.YELLOW}{Colours.BOLD}Y{Colours.END}' if turn == f'{Colours.RED}{Colours.BOLD}R{Colours.END}' else f'{Colours.RED}{Colours.BOLD}R{Colours.END}'
