@@ -26,25 +26,22 @@ This is how the board should output:
 """
 
 def printBoard(board):
-    print("===============")
 
     rows = []
-
-    for column in board:
+    for i in range(6):
         row = ""
-        for i in range(len(column)):
-            index = board.index(column)
-            row += "|" + board[index][i]
-        rows.append(row+"\n")
+        for column in board:
+            row += "|" + column[i]
+        row += "|"
+        rows.append(row)
 
     rows = rows[::-1]
 
     toPrint = ""
     for row in rows:
-        toPrint += row
+        toPrint += (row + "\n")
 
-    print(toPrint)
-    
+    print(f"===============\n{toPrint[:-1]}\n===============")
 
 # Board will be 7x6.
 
@@ -57,7 +54,7 @@ board = [
     ['O', 'O', 'O', 'O', 'O', 'O'],
     ['O', 'O', 'O', 'O', 'O', 'O'],
     ['O', 'O', 'O', 'O', 'O', 'O'],
-    ['O', 'O', 'O', 'O', 'O', 'O'],
+    ['O', 'O', 'O', 'O', 'O', 'O'], 
     ['O', 'O', 'O', 'O', 'O', 'O'],
     ['O', 'O', 'O', 'O', 'O', 'O'],
 ]
@@ -80,10 +77,8 @@ while playing:
     
     board[chosenColumn][tile] = turn
 
-    print(board)
     printBoard(board)
 
     input()
 
     turn = 'Y' if turn == 'R' else 'R'
-
