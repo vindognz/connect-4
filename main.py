@@ -52,6 +52,8 @@ def getIntInput(prompt):
             inp = int(inp)
             break
         except:
+            clear()
+            printBoard(board)
             print("Only integers allowed")
     
     return inp
@@ -86,9 +88,14 @@ while playing:
             tile = findLowest(board, chosenColumn)
             break
         except ValueError:
-            print("You chose a column that is full. Try again")
             clear()
             printBoard(board)
+            print("You chose a column that is full. Try again")
+            tile = ""
+        except IndexError:
+            clear()
+            printBoard(board)
+            print("You chose a column outside of the board. Try again")
             tile = ""
     
     board[chosenColumn][tile] = turn
