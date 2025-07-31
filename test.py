@@ -4,4 +4,6 @@ a = [
     [7, 8, 9]
 ]
 
-a[0]
+for b in a:
+    ind = a.index(b)
+    print(ind)
