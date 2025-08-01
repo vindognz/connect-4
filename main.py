@@ -75,8 +75,7 @@ while playing:
     clear()
     printBoard(board)
 
-    tile = ""
-    while tile == "":
+    while True:
         try:
             chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 0-6.\n>>> ")
             tile = board[chosenColumn].index("O")
@@ -93,6 +92,12 @@ while playing:
             tile = ""
     
     board[chosenColumn][tile] = player
+
+    if checkWin(board):
+        clear()
+        printBoard()
+        print(f"{colourTile(player)} won!")
+        break
 
     if player == 'R':
         player = 'Y'
