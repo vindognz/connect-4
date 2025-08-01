@@ -9,12 +9,11 @@ def clear():
         os.system('clear')
 
 def printBoard(board):
-
     rows = []
     for i in range(6):
         row = ""
         for column in board:
-            row += "| " + column[i] + " "
+            row += "| " + colourTile(column[i]) + " "
         row += "|"
         rows.append(row)
 
@@ -24,10 +23,8 @@ def printBoard(board):
     for row in rows:
         toPrint += (row + "\n")
 
-    print(f"""
-=============================
-{toPrint[:-1]}
-=============================""")
+    line = '=' * (len(board) * 4 + 1)
+    print(f"{line}\n{toPrint[:-1]}\n{line}")
 
 def getIntInput(prompt):
     success = False
@@ -43,6 +40,14 @@ def getIntInput(prompt):
             print("Only integers allowed")
     
     return inp
+
+def colourTile(tile):
+    if tile == 'R':
+        return f"{Colours.BOLD}{Colours.RED}R{Colours.END}"
+    elif tile == 'Y':
+        return f"{Colours.BOLD}{Colours.YELLOW}Y{Colours.END}"
+    else:
+        return "O"
 
 def checkWin(board):
     return False
@@ -64,7 +69,7 @@ board = [
 ]
 
 playing = True
-turn = f'{Colours.RED}{Colours.BOLD}O{Colours.END}'
+player = 'R'
 
 while playing:
     clear()
@@ -73,7 +78,7 @@ while playing:
     tile = ""
     while tile == "":
         try:
-            chosenColumn = getIntInput(f"{turn} where do you want to drop your tile? 0-6.\n>>> ")
+            chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 0-6.\n>>> ")
             tile = board[chosenColumn].index("O")
             break
         except ValueError:
@@ -87,6 +92,9 @@ while playing:
             print("You chose a column outside of the board. Try again")
             tile = ""
     
-    board[chosenColumn][tile] = turn
+    board[chosenColumn][tile] = player
 
-    turn = f'{Colours.YELLOW}{Colours.BOLD}O{Colours.END}' if turn == f'{Colours.RED}{Colours.BOLD}O{Colours.END}' else f'{Colours.RED}{Colours.BOLD}O{Colours.END}'
+    if player == 'R':
+        player = 'Y'
+    else:
+        player = 'R'
