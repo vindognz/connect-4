@@ -49,8 +49,33 @@ def colourTile(tile):
     else:
         return "O"
 
-def checkWin(board):
+def checkWin(board, player):
+    # Horizontal check
+    for row in range(6):
+        for col in range(4):
+            if all(board[col + i][row] == player for i in range(4)):
+                return True
+
+    # Vertical check
+    for col in range(7):
+        for row in range(3):
+            if all(board[col][row + i] == player for i in range(4)):
+                return True
+
+    # Diagonal / check
+    for col in range(4):
+        for row in range(3):
+            if all(board[col + i][row + i] == player for i in range(4)):
+                return True
+
+    # Diagonal \ check
+    for col in range(4):
+        for row in range(3, 6):
+            if all(board[col + i][row - i] == player for i in range(4)):
+                return True
+
     return False
+
 
 # Board will be 7x6.
 
@@ -93,9 +118,9 @@ while playing:
     
     board[chosenColumn][tile] = player
 
-    if checkWin(board):
+    if checkWin(board, player):
         clear()
-        printBoard()
+        printBoard(board)
         print(f"{colourTile(player)} won!")
         break
 
