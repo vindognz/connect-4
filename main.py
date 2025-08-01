@@ -4,27 +4,9 @@ from colours import Colours
 
 def clear():
     if sys.platform.startswith('win'):
-        # For Windows
         os.system('cls')
     else:
-        # For Linux and macOS
         os.system('clear')
-
-def findLowest(board, column):
-    return board[column].index("O")
-
-"""
-This is how the board should output:
-
-===============
-|O|O|O|O|O|O|O|
-|O|O|O|O|O|O|O|
-|O|O|O|O|O|O|O|
-|O|O|O|O|O|O|O|
-|O|O|O|O|O|O|O|
-|O|O|O|O|O|O|O|
-===============
-"""
 
 def printBoard(board):
 
@@ -42,7 +24,10 @@ def printBoard(board):
     for row in rows:
         toPrint += (row + "\n")
 
-    print(f"=============================\n{toPrint[:-1]}\n=============================")
+    print(f"""
+=============================
+{toPrint[:-1]}
+=============================""")
 
 def getIntInput(prompt):
     success = False
@@ -58,6 +43,9 @@ def getIntInput(prompt):
             print("Only integers allowed")
     
     return inp
+
+def checkWin(board):
+    return False
 
 # Board will be 7x6.
 
@@ -76,7 +64,7 @@ board = [
 ]
 
 playing = True
-turn = f'{Colours.RED}{Colours.BOLD}R{Colours.END}'
+turn = f'{Colours.RED}{Colours.BOLD}O{Colours.END}'
 
 while playing:
     clear()
@@ -86,7 +74,7 @@ while playing:
     while tile == "":
         try:
             chosenColumn = getIntInput(f"{turn} where do you want to drop your tile? 0-6.\n>>> ")
-            tile = findLowest(board, chosenColumn)
+            tile = board[chosenColumn].index("O")
             break
         except ValueError:
             clear()
@@ -101,4 +89,4 @@ while playing:
     
     board[chosenColumn][tile] = turn
 
-    turn = f'{Colours.YELLOW}{Colours.BOLD}Y{Colours.END}' if turn == f'{Colours.RED}{Colours.BOLD}R{Colours.END}' else f'{Colours.RED}{Colours.BOLD}R{Colours.END}'
+    turn = f'{Colours.YELLOW}{Colours.BOLD}O{Colours.END}' if turn == f'{Colours.RED}{Colours.BOLD}O{Colours.END}' else f'{Colours.RED}{Colours.BOLD}O{Colours.END}'
