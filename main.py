@@ -13,8 +13,8 @@ def printBoard(board):
     for i in range(6):
         row = ""
         for column in board:
-            row += "| " + colourTile(column[i]) + " "
-        row += "|"
+            row += f"{Colours.BOLD}| {Colours.END}" + colourTile(column[i]) + " "
+        row += f"{Colours.BOLD}|{Colours.END}"
         rows.append(row)
 
     rows = rows[::-1]
@@ -23,8 +23,10 @@ def printBoard(board):
     for row in rows:
         toPrint += (row + "\n")
 
-    line = '=' * (len(board) * 4 + 1)
-    print(f"{line}\n{toPrint[:-1]}\n{line}")
+    print(f"""        {Colours.BOLD}CONNECT  FOUR
+============================={Colours.END}
+{toPrint[:-1]}
+{Colours.BOLD}==1===2===3===4===5===6===7=={Colours.END}""")
 
 def getIntInput(prompt):
     success = False
@@ -46,36 +48,40 @@ def colourTile(tile):
         return f"{Colours.BOLD}{Colours.RED}R{Colours.END}"
     elif tile == 'Y':
         return f"{Colours.BOLD}{Colours.YELLOW}Y{Colours.END}"
+    elif tile == 'r': # winning red
+        return f"{Colours.BOLD}{Colours.LIGHT_GREEN}R{Colours.END}"
+    elif tile == 'y': # winning yellow
+        return f"{Colours.BOLD}{Colours.LIGHT_GREEN}Y{Colours.END}"
     else:
         return "O"
 
 def checkWin(board, player):
-    # Horizontal check
-    for row in range(6):
-        for col in range(4):
-            if all(board[col + i][row] == player for i in range(4)):
-                return True
+    rows, cols = (6, 7)
+    winCount = 4
 
-    # Vertical check
-    for col in range(7):
-        for row in range(3):
-            if all(board[col][row + i] == player for i in range(4)):
-                return True
+    # hoz check
+    for row in range(rows):
+        for col in range(cols - winCount + 1):
+            if all(board[col + i][row] == player for i in range(winCount)):
+                return [(col + i, row) for i in range(winCount)]
+    
+    # vert check
+    for col in range(cols):
+        for row in range(rows - winCount + 1):
+            if all(board[col][row + i] == player for i in range(winCount)):
+                return [(col, row + i) for i in range(winCount)]
 
-    # Diagonal / check
-    for col in range(4):
-        for row in range(3):
-            if all(board[col + i][row + i] == player for i in range(4)):
-                return True
+    # diag / check
+    for col in range(cols - winCount + 1):
+        for row in range(rows - winCount + 1):
+            if all(board[col + i][row + i] == player for i in range(winCount)):
+                return [(col + i, row + i) for i in range(winCount)]
 
-    # Diagonal \ check
-    for col in range(4):
-        for row in range(3, 6):
-            if all(board[col + i][row - i] == player for i in range(4)):
-                return True
-
-    return False
-
+    # diag \ check
+    for col in range(cols - winCount + 1):
+        for row in range(winCount - 1, rows):
+            if all(board[col + i][row - i] == player for i in range(winCount)):
+                return [(col + i, row - i) for i in range(winCount)]
 
 # Board will be 7x6.
 
@@ -102,23 +108,27 @@ while playing:
 
     while True:
         try:
-            chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 0-6.\n>>> ")
+            chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ") - 1
             tile = board[chosenColumn].index("O")
             break
         except ValueError:
             clear()
             printBoard(board)
-            print("You chose a column that is full. Try again")
+            print(f"{Colours.BOLD}You chose a column that is full.{Colours.END} Try again")
             tile = ""
         except IndexError:
             clear()
             printBoard(board)
-            print("You chose a column outside of the board. Try again")
+            print(f"{Colours.BOLD}You chose a column outside of the board.{Colours.END} Try again")
             tile = ""
     
     board[chosenColumn][tile] = player
+    
+    winPositions = checkWin(board, player)
+    if winPositions:
+        for x, y in winPositions:
+            board[x][y] = board[x][y].lower()
 
-    if checkWin(board, player):
         clear()
         printBoard(board)
         print(f"{colourTile(player)} won!")
