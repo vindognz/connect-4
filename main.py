@@ -29,9 +29,8 @@ def printBoard(board):
 {Colours.BOLD}==1===2===3===4===5===6===7=={Colours.END}""")
 
 def getIntInput(prompt):
-    success = False
     inp = ""
-    while not success:
+    while True:
         inp = input(prompt)
         try:
             inp = int(inp)
@@ -39,7 +38,7 @@ def getIntInput(prompt):
         except:
             clear()
             printBoard(board)
-            print("Only integers allowed")
+            print("Only positive integers 1-7 allowed")
     
     return inp
 
@@ -109,17 +108,19 @@ while playing:
     while True:
         try:
             chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ") - 1
+            if chosenColumn <= 0:
+                raise IndexError
             tile = board[chosenColumn].index("O")
             break
         except ValueError:
             clear()
             printBoard(board)
-            print(f"{Colours.BOLD}You chose a column that is full.{Colours.END} Try again")
+            print(f"{Colours.BOLD}You chose a column that is full. Try again{Colours.END}")
             tile = ""
         except IndexError:
             clear()
             printBoard(board)
-            print(f"{Colours.BOLD}You chose a column outside of the board.{Colours.END} Try again")
+            print(f"{Colours.BOLD}You chose a column outside of the board. Try again{Colours.END}")
             tile = ""
     
     board[chosenColumn][tile] = player
