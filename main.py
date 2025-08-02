@@ -82,12 +82,8 @@ def checkWin(board, player):
             if all(board[col + i][row - i] == player for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
 
-# Board will be 7x6.
-
-# O = open, R = red, Y = yellow
-# because this is defined like this, you could technically save a game then load from where you left off
-
 # This is defined as columns, not rows. So tile 0 on column 0 is the bottom left tile of the board
+# you index like board[column][row]
 board = [
     ['O', 'O', 'O', 'O', 'O', 'O'],
     ['O', 'O', 'O', 'O', 'O', 'O'],
