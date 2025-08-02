@@ -108,7 +108,7 @@ while playing:
     while True:
         try:
             chosenColumn = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ") - 1
-            if chosenColumn <= 0:
+            if chosenColumn < 0:
                 raise IndexError
             tile = board[chosenColumn].index("O")
             break
