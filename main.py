@@ -83,8 +83,8 @@ def socket_receive_move(sock):
     return int(''.join([c for c in data if c.isdigit()]) or 0)
 
 def socket_send_move(sock, col):
-    payload = str(col)
-    sock.sendall(payload.encode())
+    move_data = str(col)
+    sock.sendall(move_data.encode())
 
 # ===========================
 # |      Main game loop     |
