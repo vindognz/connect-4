@@ -103,7 +103,7 @@ def play_game(player1_get_move, player2_get_move):
         try:
             tile = board[col].index("O")
         except ValueError:
-            continue  # column full, skip turn (could add retry logic)
+            continue
 
         board[col][tile] = player
 
@@ -127,19 +127,24 @@ def play_local_pvp():
 
 def play_lan_server():
     HOST, PORT = "0.0.0.0", 65432
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
-        print("Waiting for player 2...")
-        conn, addr = s.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            play_game(
-                lambda p, b: send_and_return_local_move(p, b, conn),
-                lambda p, b: socket_receive_move(conn)
-            )
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((HOST, PORT))
+            s.listen()
+            print("Waiting for player 2...")
+            conn, addr = s.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                play_game(
+                    lambda p, b: send_and_return_local_move(p, b, conn),
+                    lambda p, b: socket_receive_move(conn)
+                )
+    except:
+        print("Somebody broke something. Try again.")
+        input("Press ENTER to return to the menu.")
+    finally:
+        s.close()
         
-
 def play_lan_client():
     while True:
         HOST, PORT = input("Enter server IP: "), 65432
@@ -152,8 +157,10 @@ def play_lan_client():
                     lambda p, b: send_and_return_local_move(p, b, s)
                 )
                 break
-        except:
+        except ConnectionRefusedError:
             print("No game found on that IP. Try again.")
+        except ConnectionResetError or ValueError:
+            print("The game was closed by host (I think).")
 
 def send_and_return_local_move(player, board, sock):
     col = local_move_provider(player, board)
