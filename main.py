@@ -138,6 +138,7 @@ def play_lan_server():
                 lambda p, b: send_and_return_local_move(p, b, conn),
                 lambda p, b: socket_receive_move(conn)
             )
+        
 
 def play_lan_client():
     while True:

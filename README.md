@@ -8,3 +8,5 @@ I might make a GUI in Pygame, depends if i cbs
 
 todo list:
 3 gamemodes total. ~~player vs player on the same device~~, ~~player vs player lan~~, and player vs computer
+
+remember last ip you played against. stop multiple ppl from joining a game lmao. make it so when ppl leave the game ends instead of just crashing.
