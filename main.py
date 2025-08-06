@@ -1,7 +1,7 @@
 import os
 import sys
 import socket
-from colours import Colours
+from colours import Colours as C
 
 # ===========================
 # |     Helper functions    |
@@ -11,13 +11,13 @@ def clear():
 
 def colourTile(tile):
     if tile == 'R':
-        return f"{Colours.BOLD}{Colours.RED}R{Colours.END}"
+        return f"{C.BOLD}{C.RED}R{C.END}"
     elif tile == 'Y':
-        return f"{Colours.BOLD}{Colours.YELLOW}Y{Colours.END}"
+        return f"{C.BOLD}{C.YELLOW}Y{C.END}"
     elif tile == 'r':
-        return f"{Colours.BOLD}{Colours.LIGHT_GREEN}R{Colours.END}"
+        return f"{C.BOLD}{C.LIGHT_GREEN}R{C.END}"
     elif tile == 'y':
-        return f"{Colours.BOLD}{Colours.LIGHT_GREEN}Y{Colours.END}"
+        return f"{C.BOLD}{C.LIGHT_GREEN}Y{C.END}"
     else:
         return "O"
 
@@ -26,15 +26,15 @@ def printBoard(board):
     for i in range(6):
         row = ""
         for column in board:
-            row += f"{Colours.BOLD}| {Colours.END}" + colourTile(column[i]) + " "
-        row += f"{Colours.BOLD}|{Colours.END}"
+            row += f"{C.BOLD}| {C.END}" + colourTile(column[i]) + " "
+        row += f"{C.BOLD}|{C.END}"
         rows.append(row)
     rows.reverse()
 
-    print(f"""        {Colours.BOLD}CONNECT  FOUR
-============================={Colours.END}
+    print(f"""        {C.BOLD}CONNECT  FOUR
+============================={C.END}
 {'\n'.join(rows)}
-{Colours.BOLD}==1===2===3===4===5===6===7=={Colours.END}""")
+{C.BOLD}==1===2===3===4===5===6===7=={C.END}""")
 
 def getIntInput(prompt, board=None):
     while True:
@@ -126,6 +126,10 @@ def play_local_pvp():
     play_game(local_move_provider, local_move_provider)
 
 def play_lan_server():
+    print("PvP LAN is in maintenance due to exploits.!")
+    input("Press Enter to return to menu...")
+    return
+
     HOST, PORT = "0.0.0.0", 65432
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -146,6 +150,10 @@ def play_lan_server():
         s.close()
         
 def play_lan_client():
+    print("PvP LAN is in maintenance due to exploits.!")
+    input("Press Enter to return to menu...")
+    return
+    
     while True:
         HOST, PORT = input("Enter server IP: "), 65432
         try:

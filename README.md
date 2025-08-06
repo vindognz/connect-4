@@ -7,6 +7,10 @@ I will make and train the AI myself.
 I might make a GUI in Pygame, depends if i cbs
 
 todo list:
-3 gamemodes total. ~~player vs player on the same device~~, ~~player vs player lan~~, and player vs computer
+~~player vs player on the same device~~, player vs player lan, and player vs computer
 
-remember last ip you played against. stop multiple ppl from joining a game lmao. make it so when ppl leave the game ends instead of just crashing.
+pvp lan todo:
+    (It's in maintenance rn cuz of 1,000,000 serious vulns)
+    remember the last ip you played against. remember ip input with a name?
+    stop multiple ppl joining one game (or add spectators)
+    make it so when ppl leave, the game ends instead of hanging or crashing.
