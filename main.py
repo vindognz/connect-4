@@ -129,51 +129,11 @@ def play_lan_server():
     print("PvP LAN is in maintenance due to exploits.!")
     input("Press Enter to return to menu...")
     return
-
-    HOST, PORT = "0.0.0.0", 65432
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            s.listen()
-            print("Waiting for player 2...")
-            conn, addr = s.accept()
-            with conn:
-                print(f"Connected by {addr}")
-                play_game(
-                    lambda p, b: send_and_return_local_move(p, b, conn),
-                    lambda p, b: socket_receive_move(conn)
-                )
-    except:
-        print("Somebody broke something. Try again.")
-        input("Press ENTER to return to the menu.")
-    finally:
-        s.close()
         
 def play_lan_client():
     print("PvP LAN is in maintenance due to exploits.!")
     input("Press Enter to return to menu...")
     return
-    
-    while True:
-        HOST, PORT = input("Enter server IP: "), 65432
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((HOST, PORT))
-                print("Connected to server.")
-                play_game(
-                    lambda p, b: socket_receive_move(s),
-                    lambda p, b: send_and_return_local_move(p, b, s)
-                )
-                break
-        except ConnectionRefusedError:
-            print("No game found on that IP. Try again.")
-        except ConnectionResetError or ValueError:
-            print("The game was closed by host (I think).")
-
-def send_and_return_local_move(player, board, sock):
-    col = local_move_provider(player, board)
-    socket_send_move(sock, col)
-    return col
 
 def play_vs_computer():
     print("PvC mode coming soon!")
