@@ -1,6 +1,5 @@
 import os
 import sys
-import socket
 from colours import Colours as C
 
 # ===========================
@@ -77,11 +76,16 @@ def local_move_provider(player, board):
     col = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ", board) - 1
     return col
 
-def socket_receive_move(sock):
-    return int(sock.recv(1024).decode())
-
-def socket_send_move(sock, col):
-    sock.sendall(str(col).encode())
+def cpu_move_provider(player, board):
+    
+    i = 0
+    while i < len(board):
+        if any([t == 'O' for t in board[i]]):
+            break
+        else:
+            i += 1
+    print(i)
+    return i
 
 # ===========================
 # |      Main game loop     |
@@ -136,8 +140,7 @@ def play_lan_client():
     return
 
 def play_vs_computer():
-    print("PvC mode coming soon!")
-    input("Press Enter to return to menu...")
+    play_game(cpu_move_provider, local_move_provider)
 
 # ===========================
 # |           Menu          |
