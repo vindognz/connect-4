@@ -3,6 +3,7 @@ import sys
 from copy import deepcopy
 from colours import Colours as C
 import random
+import time
 
 # ===========================
 # |     Helper functions    |
@@ -79,36 +80,34 @@ def local_move_provider(player, board):
     return col
 
 def cpu_move_provider(player, board):
-    # start with a random move
-    col = random.randint(0, 6)
-    while 'O' not in board[col]:
+    col = 0
+    def other_player_gonna_win(my_move: int|None = None) -> int|bool:
+        if my_move == None: my_move = col
+        my_board = deepcopy(board)
+        my_board[my_move][my_board[my_move].index('O')] = player
+        
+        other_p = 'Y' if player == 'R' else 'R'
+        for other_p_col in range(len(my_board)):
+            if 'O' not in my_board[other_p_col]:
+                continue
+
+            new_board = deepcopy(my_board)
+            new_board[other_p_col][new_board[other_p_col].index('O')] = other_p
+            if checkWin(new_board, other_p) != None:
+                return other_p_col
+        return False
+    
+    # Start with a random move
+    col = random.randint(0,6)
+    while not any([t == 'O' for t in board[col]]):
         col += 1
-        if col == 7:
-            col = 0
-
-    # prevent immediate wins
-    other_p = 'Y' if player == 'R' else 'R'
-    for other_p_col in range(len(board)):
-        if 'O' not in board[other_p_col]:
-            continue
-
-        new_board = deepcopy(board)
-        new_board[other_p_col][new_board[other_p_col].index('O')] = other_p
-        if checkWin(new_board, other_p) != None:
-            col = other_p_col
-            break
+        if col == 7: col = 0
     
-    # take wins
-    for possible_col in range(len(board)):
-        if 'O' not in board[possible_col]:
-            continue
+    # Prevent other player winning 1 move deep
+    if other_player_gonna_win():
+        col = other_player_gonna_win()
 
-        new_board = deepcopy(board)
-        new_board[possible_col][new_board[possible_col].index('O')] = player
-        if checkWin(new_board, player) != None:
-            col = possible_col
-            break
-    
+    time.sleep((random.random()*0.5)+0.25)  # Simulate thinking time
     return col
 
 # ===========================
@@ -164,7 +163,8 @@ def play_lan_client():
     return
 
 def play_vs_computer():
-    play_game(cpu_move_provider, local_move_provider)
+    # play_game(cpu_move_provider, local_move_provider)
+    play_game(cpu_move_provider, cpu_move_provider)
 
 # ===========================
 # |           Menu          |
