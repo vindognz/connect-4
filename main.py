@@ -79,9 +79,12 @@ def local_move_provider(player, board):
     return col
 
 def cpu_move_provider(player, board):
+    # start with a random move
     col = random.randint(0, 6)
     while 'O' not in board[col]:
         col += 1
+        if col == 7:
+            col = 0
 
     # prevent immediate wins
     other_p = 'Y' if player == 'R' else 'R'
@@ -93,6 +96,17 @@ def cpu_move_provider(player, board):
         new_board[other_p_col][new_board[other_p_col].index('O')] = other_p
         if checkWin(new_board, other_p) != None:
             col = other_p_col
+            break
+    
+    # take wins
+    for possible_col in range(len(board)):
+        if 'O' not in board[possible_col]:
+            continue
+
+        new_board = deepcopy(board)
+        new_board[possible_col][new_board[possible_col].index('O')] = player
+        if checkWin(new_board, player) != None:
+            col = possible_col
             break
     
     return col
@@ -150,8 +164,7 @@ def play_lan_client():
     return
 
 def play_vs_computer():
-    # play_game(cpu_move_provider, local_move_provider)
-    play_game(local_move_provider, cpu_move_provider)
+    play_game(cpu_move_provider, local_move_provider)
 
 # ===========================
 # |           Menu          |
