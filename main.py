@@ -29,7 +29,7 @@ def colourTile(tile):
         elif tile == 'y':
             return f"{C.BOLD}{C.LIGHT_GREEN} Y {C.END}"
         else:
-            return " O "
+            return "   "
 
     elif mode == "coloured_background":
         if tile == 'R':
@@ -44,12 +44,16 @@ def colourTile(tile):
             return "   "
 
     elif mode == "emojis":
-        if tile.lower() == 'r':
+        if tile == 'R':
             return "🔴"
-        elif tile.lower() == 'y':
+        elif tile == 'r':
+            return "❌"
+        elif tile == 'Y':
             return "🟡"
+        elif tile == 'y':
+            return "⚠️"
         else:
-            return "⚪"
+            return "  "
 
     return tile
 
@@ -74,7 +78,8 @@ def printBoard(board):
     if mode == "emojis":
         top = f"""     {C.BOLD}CONNECT FOUR
 ======================{C.END}"""
-        bottom = f"{C.BOLD}==1==2==3==4==5==6==7=={C.END}"
+        bottom = f"{C.BOLD}=1️⃣=2️⃣=3️⃣=4️⃣=5️⃣=6️⃣=7️⃣={C.END}"
+
     else:
         top = f"""        {C.BOLD}CONNECT  FOUR
 ============================={C.END}"""
@@ -370,7 +375,8 @@ def play_lan_client():
 
 def play_vs_computer():
     # play_game(cpu_move_provider, local_move_provider)
-    play_game(local_move_provider, cpu_move_provider)
+    # play_game(local_move_provider, cpu_move_provider)
+    play_game(cpu_move_provider, cpu_move_provider)
 
 # ===========================
 # |           Menu          |
@@ -462,7 +468,7 @@ while True:
     print("2. PvP (LAN)")
     print("3. PvC (vs computer)")
     print("4. Edit settings")
-    print("4. Quit")
+    print("5. Quit")
     choice = input("Choose 1-4: ").strip()
     if choice == "1":
         play_local_pvp()
