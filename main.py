@@ -1,42 +1,91 @@
 import os
 import sys
-from copy import deepcopy
 from colours import Colours as C
 import random
-import time
+import json
 
 # ===========================
 # |     Helper functions    |
 # ===========================
+
 def clear():
     os.system('cls' if sys.platform.startswith('win') else 'clear')
 
 def colourTile(tile):
-    if tile == 'R':
-        return f"{C.BOLD}{C.RED}R{C.END}"
-    elif tile == 'Y':
-        return f"{C.BOLD}{C.YELLOW}Y{C.END}"
-    elif tile == 'r':
-        return f"{C.BOLD}{C.LIGHT_GREEN}R{C.END}"
-    elif tile == 'y':
-        return f"{C.BOLD}{C.LIGHT_GREEN}Y{C.END}"
-    else:
-        return "O"
+    try:
+        with open("settings.json", "r") as f:
+            settings = json.load(f)
+        mode = settings.get("display_mode", "coloured_text")
+    except (FileNotFoundError, json.JSONDecodeError):
+        mode = "coloured_text"
+
+    if mode == "coloured_text":
+        if tile == 'R':
+            return f"{C.BOLD}{C.RED} R {C.END}"
+        elif tile == 'Y':
+            return f"{C.BOLD}{C.YELLOW} Y {C.END}"
+        elif tile == 'r':
+            return f"{C.BOLD}{C.LIGHT_GREEN} R {C.END}"
+        elif tile == 'y':
+            return f"{C.BOLD}{C.LIGHT_GREEN} Y {C.END}"
+        else:
+            return " O "
+
+    elif mode == "coloured_background":
+        if tile == 'R':
+            return f"{C.BG_RED}   {C.END}"
+        elif tile == 'Y':
+            return f"{C.BG_LIGHT_YELLOW}   {C.END}"
+        elif tile == 'r':
+            return f"{C.BG_LIGHT_GREEN}{C.BOLD} R {C.END}"
+        elif tile == 'y':
+            return f"{C.BG_LIGHT_GREEN}{C.BOLD} Y {C.END}"
+        else:
+            return "   "
+
+    elif mode == "emojis":
+        if tile.lower() == 'r':
+            return "🔴"
+        elif tile.lower() == 'y':
+            return "🟡"
+        else:
+            return "⚪"
+
+    return tile
 
 def printBoard(board):
+
+    try:
+        with open("settings.json", "r") as f:
+            settings = json.load(f)
+        mode = settings.get("display_mode", "coloured_text")
+    except (FileNotFoundError, json.JSONDecodeError):
+        mode = "coloured_text"
+
     rows = []
     for i in range(6):
         row = ""
         for column in board:
-            row += f"{C.BOLD}| {C.END}" + colourTile(column[i]) + " "
+            row += f"{C.BOLD}|{C.END}{colourTile(column[i])}"
         row += f"{C.BOLD}|{C.END}"
         rows.append(row)
     rows.reverse()
 
-    print(f"""        {C.BOLD}CONNECT  FOUR
-============================={C.END}
-{'\n'.join(rows)}
-{C.BOLD}==1===2===3===4===5===6===7=={C.END}""")
+    if mode == "emojis":
+        top = f"""     {C.BOLD}CONNECT FOUR
+======================{C.END}"""
+        bottom = f"{C.BOLD}==1==2==3==4==5==6==7=={C.END}"
+    else:
+        top = f"""        {C.BOLD}CONNECT  FOUR
+============================={C.END}"""
+        bottom = f"{C.BOLD}==1===2===3===4===5===6===7=={C.END}"
+
+#     print(f"""        {C.BOLD}CONNECT  FOUR
+# ============================={C.END}
+# {'\n'.join(rows)}
+# {C.BOLD}==1===2===3===4===5===6===7=={C.END}""")
+    print(f"{top}\n{'\n'.join(rows)}\n{bottom}")
+
 
 def getIntInput(prompt, board=None):
     while True:
@@ -326,12 +375,93 @@ def play_vs_computer():
 # ===========================
 # |           Menu          |
 # ===========================
+
+def edit_settings():
+    settings_file = "settings.json"
+
+    # Default settings if no file exists
+    default_settings = {
+        "display_mode": "coloured_text"  # options: coloured_text, coloured_background, emojis
+    }
+
+    # Load existing settings
+    if os.path.exists(settings_file):
+        with open(settings_file, "r") as f:
+            try:
+                settings = json.load(f)
+            except json.JSONDecodeError:
+                settings = default_settings.copy()
+    else:
+        settings = default_settings.copy()
+
+    # Keep a copy for detecting unsaved changes
+    original_settings = settings.copy()
+
+    def save_settings():
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=4)
+        print("Settings saved.")
+        input("Press Enter to return to main menu...")
+
+    while True:
+        clear()
+        print("=== Settings Menu ===")
+        print("1. Display Mode")
+        print("--------------------")
+        print("S. Save and Exit")
+        print("E. Exit without Saving")
+        print()
+        print(f"Current Settings: {settings}")
+
+        choice = input("Choose a setting to edit, or Save/Exit: ").strip().lower()
+
+        if choice == "1":
+            # Display Mode submenu
+            while True:
+                clear()
+                print("=== Display Mode ===")
+                modes = [
+                    ("coloured_text", "Coloured Text"),
+                    ("coloured_background", "Coloured Background"),
+                    ("emojis", "Emojis")
+                ]
+                for i, (key, label) in enumerate(modes, start=1):
+                    if settings["display_mode"] == key:
+                        print(f"{i}. {C.BOLD}{label}{C.END}")
+                    else:
+                        print(f"{i}. {label}")
+                print("B. Go Back")
+                sub_choice = input("Choose a display mode: ").strip().lower()
+                if sub_choice == "b":
+                    break
+                elif sub_choice in [str(i) for i in range(1, len(modes) + 1)]:
+                    settings["display_mode"] = modes[int(sub_choice) - 1][0]
+                    print(f"Display mode set to {settings['display_mode']}")
+                else:
+                    input("Invalid choice. Press Enter to try again...")
+
+        elif choice == "save" or choice == "s":
+            save_settings()
+            return
+
+        elif choice == "exit" or choice == "e":
+            if settings != original_settings:
+                confirm = input("You have unsaved changes. Exit without saving? (y/n): ").lower()
+                if confirm == "y":
+                    return
+            else:
+                return
+
+        else:
+            input("Invalid choice. Press Enter to try again...")
+
 while True:
     clear()
     print("How do you want to play?")
     print("1. PvP (same device)")
     print("2. PvP (LAN)")
     print("3. PvC (vs computer)")
+    print("4. Edit settings")
     print("4. Quit")
     choice = input("Choose 1-4: ").strip()
     if choice == "1":
@@ -344,6 +474,8 @@ while True:
     elif choice == "3":
         play_vs_computer()
     elif choice == "4":
+        edit_settings()
+    elif choice == "5":
         break
     else:
         input("Invalid choice. Press Enter to try again...")
