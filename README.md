@@ -2,9 +2,9 @@
 
 This will eventually become a connect-4 game written in Python with an AI opponent you can play.
 
-~~ I ~~ Vincent will make and train the AI ~~myself~~ himself.
+~~I~~ Vincent will make and train the AI ~~myself~~ himself.
 
-~~ I ~~ Vincent might make a GUI in Pygame, depends if ~~ I ~~ Vincent cbs
+~~I~~ Vincent might make a GUI in Pygame, depends if ~~I~~ Vincent cbs
 
 todo list:
 ~~player vs player on the same device~~, player vs player lan, and player vs computer
