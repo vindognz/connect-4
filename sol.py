@@ -3,7 +3,7 @@ import json, random, time
 
 #region Constants
 MIN_BOARD_SIZE: tuple[int,int] = (3,3)
-MAX_BOARD_SIZE: tuple[int,int] = (9,9)
+MAX_BOARD_SIZE: tuple[int,int] = (16,10)
 
 settings: dict = None
 DEFAULT_SETTINGS = {
@@ -11,6 +11,7 @@ DEFAULT_SETTINGS = {
     'board_columns': ('custom',7,(MIN_BOARD_SIZE[0],MAX_BOARD_SIZE[0])),
     'board_rows': ('custom',6,(MIN_BOARD_SIZE[1],MAX_BOARD_SIZE[1])),
     'connect_count': ('custom',4),
+    'p2sc': ('bool',False)
 }
 #endregion Constants
 
@@ -310,7 +311,16 @@ class Game():
 #region Move Providers
 def local_move_provider(player: int, board: Board) -> int:
     clear()
-    return get_int_input(f'{board.display()}\n {display_tile(player)} > ',1,board.size_x)-1
+    
+    if settings['p2sc'] == True:
+        try:
+            import p2sc # type: ignore
+            out = p2sc.main(player,board) # type: ignore
+        except ImportError:
+            out = get_int_input(f'{board.display()}\n {display_tile(player)} > ',1,board.size_x)-1
+    else:
+        out = get_int_input(f'{board.display()}\n {display_tile(player)} > ',1,board.size_x)-1
+    return out
 
 def cpu_move_provider(player: int, board: Board) -> int:
     time.sleep(0.125+random.random()*0.25)
@@ -339,88 +349,94 @@ def load_settings():
 load_settings()
 
 #region Main Menu
-while True:
-    try:
-        choice = menu_choice(
-        '=== Main Menu ===\nHow do you want to play?',(
-            *[title for title in game_modes.keys()], # Game modes
-            'Edit settings',
-            'Quit',
-        ))
-    except KeyboardInterrupt: choice = 'Quit' # Allows for fast, clean exit
+if __name__ == '__main__':
+    while True:
+        try:
+            choice = menu_choice(
+            '=== Main Menu ===\nHow do you want to play?',(
+                *[title for title in game_modes.keys()], # Game modes
+                'Edit settings',
+                'Quit',
+            ))
+        except KeyboardInterrupt: choice = 'Quit' # Allows for fast, clean exit
 
-    if choice == 'Quit': clear(); break
+        if choice == 'Quit': clear(); break
+            
+        elif choice == 'Edit settings':
+            while True:
+                try:
+                    choice = menu_choice(
+                    '=== Settings Menu ===\nChoose a setting to edit, or save and return to the menu:',(
+                        *[f'{title} ({value})' for title,value in settings.items()], # Settings
+                        'Save and return to main menu'
+                    ))
+                except KeyboardInterrupt: # Allows for fast, clean save and exit
+                    with open('settings.json', 'w') as f: json.dump(settings, f, indent=4);
+                    break
+
+                if choice == 'Save and return to main menu':
+                    with open('settings.json', 'w') as f: json.dump(settings, f, indent=4)
+                    print('Settings saved.')
+                    print('Press ENTER to return to the menu.')
+                    await_enter()
+                    break
+                
+                else: # Edit a setting
+                    setting_name = choice.split(' (')[0]
+                    setting_data = DEFAULT_SETTINGS[setting_name]
+                    default_val = setting_data[1]
+                    setting_type = setting_data[0]
+
+                    def setting_type_preset(options):
+                        '''Prompt for a setting value from `options`.'''
+                        try:
+                            choice = menu_choice(f'Set value for {setting_name}:\n(Or press Ctrl+C to set to default value: {default_val})', options)
+                        except KeyboardInterrupt: choice = default_val
+                        settings[setting_name] = choice
+
+                    def setting_type_int(min_val,max_val):
+                        '''Prompt for a setting value of type int with optional `min` / `max`.'''
+                        try:
+                            choice = get_int_input(f'Set value for {setting_name}{f' (from {min_val}-{max_val})' if min_val != None and max_val != None else ''}:\n(Or press Ctrl+C to set to default value: {default_val})\n> ', min_val, max_val)
+                        except KeyboardInterrupt: choice = default_val
+                        settings[setting_name] = choice
+
+                    def setting_type_bool():
+                        '''Prompt for a toggling a boolean value.'''
+                        settings[setting_name] = not settings[setting_name]
+
+                    if setting_type == 'preset': setting_type_preset(setting_data[2])
+                    elif setting_type == 'int': setting_type_int(*setting_data[2])
+                    elif setting_type == 'bool': setting_type_bool()
+                    # TODO MORE VALUE TYPES
+                    elif setting_type == 'custom':
+                        
+                        #region Make sure connect_count is always a legal value
+                        if setting_name == 'board_columns':
+                            setting_type_int(*setting_data[2])
+                            if settings['connect_count'] > min(settings['board_columns'],settings['board_rows']): settings['connect_count'] = min(settings['board_columns'],settings['board_rows'])
+
+                        if setting_name == 'board_rows':
+                            setting_type_int(*setting_data[2])
+                            if settings['connect_count'] > min(settings['board_columns'],settings['board_rows']): settings['connect_count'] = min(settings['board_columns'],settings['board_rows'])
+
+                        if setting_name == 'connect_count':
+                            setting_type_int(3, min(settings['board_columns'],settings['board_rows']))
+                        #endregion Make sure connect_count is always a legal value
         
-    elif choice == 'Edit settings':
-        while True:
-            try:
-                choice = menu_choice(
-                '=== Settings Menu ===\nChoose a setting to edit, or save and return to the menu:',(
-                    *[f'{title} ({value})' for title,value in settings.items()], # Settings
-                    'Save and return to main menu'
-                ))
-            except KeyboardInterrupt: # Allows for fast, clean save and exit
-                with open('settings.json', 'w') as f: json.dump(settings, f, indent=4);
-                break
+        else: # Play a game
+            game_mode = game_modes[choice]
 
-            if choice == 'Save and return to main menu':
-                with open('settings.json', 'w') as f: json.dump(settings, f, indent=4)
-                print('Settings saved.')
+            if type(game_mode) == str:
+                print(game_mode) # Prints out a reason as to why this game mode is currently unavaliable
                 print('Press ENTER to return to the menu.')
                 await_enter()
-                break
-            
-            else: # Edit a setting
-                setting_name = choice.split(' (')[0]
-                setting_data = DEFAULT_SETTINGS[setting_name]
-                default_val = setting_data[1]
-                setting_type = setting_data[0]
 
-                def setting_type_preset(options):
-                    '''Prompt for a setting value from `options`.'''
-                    try:
-                        choice = menu_choice(f'Set value for {setting_name}:\n(Or press Ctrl+C to set to default value: {default_val})', options)
-                    except KeyboardInterrupt: choice = default_val
-                    settings[setting_name] = choice
+            elif callable(game_mode): # Allows for setup, i.e socket starting before the game
+                game: Game = game_mode() # This function should return a Game object, and can optionally use settings
+                game.play()
 
-                def setting_type_int(min_val,max_val):
-                    '''Prompt for a setting value of type int with optional `min` / `max`.'''
-                    try:
-                        choice = get_int_input(f'Set value for {setting_name}{f' (from {min_val}-{max_val})' if min_val != None and max_val != None else ''}:\n(Or press Ctrl+C to set to default value: {default_val})\n> ', min_val, max_val)
-                    except KeyboardInterrupt: choice = default_val
-                    settings[setting_name] = choice
-
-                if setting_type == 'preset': setting_type_preset(setting_data[2])
-                elif setting_type == 'int': setting_type_int(*setting_data[2])
-                # TODO MORE VALUE TYPES
-                elif setting_type == 'custom':
-                    
-                    #region Make sure connect_count is always a legal value
-                    if setting_name == 'board_columns':
-                        setting_type_int(*setting_data[2])
-                        if settings['connect_count'] > min(settings['board_columns'],settings['board_rows']): settings['connect_count'] = min(settings['board_columns'],settings['board_rows'])
-
-                    if setting_name == 'board_rows':
-                        setting_type_int(*setting_data[2])
-                        if settings['connect_count'] > min(settings['board_columns'],settings['board_rows']): settings['connect_count'] = min(settings['board_columns'],settings['board_rows'])
-
-                    if setting_name == 'connect_count':
-                        setting_type_int(3, min(settings['board_columns'],settings['board_rows']))
-                    #endregion Make sure connect_count is always a legal value
-    
-    else: # Play a game
-        game_mode = game_modes[choice]
-
-        if type(game_mode) == str:
-            print(game_mode) # Prints out a reason as to why this game mode is currently unavaliable
-            print('Press ENTER to return to the menu.')
-            await_enter()
-
-        elif callable(game_mode): # Allows for setup, i.e socket starting before the game
-            game: Game = game_mode() # This function should return a Game object, and can optionally use settings
-            game.play()
-
-        elif type(game_mode) == tuple: # Allows for a simple game mode with 2 player providers
-            game = Game(game_mode[0],game_mode[1],(settings['board_columns'],settings['board_rows']),settings['connect_count'])
-            game.play()
+            elif type(game_mode) == tuple: # Allows for a simple game mode with 2 player providers
+                game = Game(game_mode[0],game_mode[1],(settings['board_columns'],settings['board_rows']),settings['connect_count'])
+                game.play()
 #endregion Main Menu
