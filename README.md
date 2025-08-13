@@ -14,3 +14,9 @@ pvp lan todo:
     remember the last ip you played against. remember ip input with a name?
     stop multiple ppl joining one game (or add spectators)
     make it so when ppl leave, the game ends instead of hanging or crashing.
+
+sols todo:
+    custom play modes - 3 player?
+
+    allow for inf players using numbers in the tilesheet and *arg in play for providers
+    mods - can use from mods import * to overwrite functions
