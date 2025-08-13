@@ -1,9 +1,8 @@
-from types import FunctionType
 from colours import Colours as C
-import json
+import json, random, time
 
 #region Constants
-MIN_BOARD_SIZE: tuple[int,int] = (2,2)
+MIN_BOARD_SIZE: tuple[int,int] = (3,3)
 MAX_BOARD_SIZE: tuple[int,int] = (9,9)
 
 settings: dict = None
@@ -102,7 +101,7 @@ class Board():
         if type(connect_count) != int: raise TypeError(connect_count)
         if size_x not in range(MIN_BOARD_SIZE[0],MAX_BOARD_SIZE[0]+1): raise ValueError(f'Argument \'size_x\' ({size_x}) must be within range {MIN_BOARD_SIZE[0]}-{MAX_BOARD_SIZE[0]}.')
         if size_y not in range(MIN_BOARD_SIZE[1],MAX_BOARD_SIZE[1]+1): raise ValueError(f'Argument \'size_y\' ({size_y}) must be within range {MIN_BOARD_SIZE[1]}-{MAX_BOARD_SIZE[1]}.')
-        if connect_count not in range(2,min(size_x,size_y)+1): raise ValueError(f'Argument \'connect_count\' ({connect_count}) must be within range {2}-{min(size_x,size_y)}.')
+        if connect_count not in range(3,min(size_x,size_y)+1): raise ValueError(f'Argument \'connect_count\' ({connect_count}) must be within range {3}-{min(size_x,size_y)}.')
         #endregion Ensure Arguments
 
         self.size_x = size_x
@@ -110,6 +109,13 @@ class Board():
         self.connect_count = connect_count
         self._board: list[list[int]] = [[0 for y in range(size_y)] for x in range(size_x)]
         self.history: list[tuple[int,int,int]] = []
+
+    def copy(self):
+        out = Board(self.size_x,self.size_y,self.connect_count)
+        for x in range(self.size_x):
+            for y in range(self.size_y):
+                out.set_tile(x,y,self.get_tile(x,y))
+        return out
     
     def reset(self) -> None:
         '''Clear the board and it's history.'''
@@ -168,7 +174,7 @@ class Board():
     
     def is_full(self) -> bool:
         '''Returns whether or not the board is full.'''
-        return not any(self.top_in_column(x) == None for x in self.__board)
+        return not any(self.top_in_column(x) != None for x in range(len(self._board)))
     
     def display(self, win_tiles: list[tuple[int,int]] = []) -> None:
         '''
@@ -207,8 +213,32 @@ class Board():
         
         return '\n'.join(out)
 
+    def check_win(self, player: int):
+        '''If the given player (`player`) has won, returns a list of the tiles that gave them the won, otherwise None.'''
+        #region Ensure Arguments
+        if type(player) != int: raise TypeError(player)
+        if player not in range(1,3): raise ValueError(f'Argument \'player\' ({player}) must be within range 1-2.')
+        #endregion Ensure Arguments
+
+        for row in range(self.size_y):
+            for col in range(self.size_x - self.connect_count + 1):
+                if all(self.get_tile(col + i, row) == player for i in range(self.connect_count)):
+                    return [(col + i, row) for i in range(self.connect_count)]
+        for col in range(self.size_x):
+            for row in range(self.size_y - self.connect_count + 1):
+                if all(self.get_tile(col, row + i) == player for i in range(self.connect_count)):
+                    return [(col, row + i) for i in range(self.connect_count)]
+        for col in range(self.size_x - self.connect_count + 1):
+            for row in range(self.size_y - self.connect_count + 1):
+                if all(self.get_tile(col + i, row + i) == player for i in range(self.connect_count)):
+                    return [(col + i, row + i) for i in range(self.connect_count)]
+        for col in range(self.size_x - self.connect_count + 1):
+            for row in range(self.connect_count - 1, self.size_y):
+                if all(self.get_tile(col + i, row - i) == player for i in range(self.connect_count)):
+                    return [(col + i, row - i) for i in range(self.connect_count)]
+
 class Game():
-    def __init__(self, player1_move_provider: FunctionType, player2_move_provider: FunctionType, board_size: tuple[int,int] = (7,6), connect_count: int = 4):
+    def __init__(self, player1_move_provider, player2_move_provider, board_size: tuple[int,int] = (7,6), connect_count: int = 4):
         self.board = Board(board_size[0],board_size[1],connect_count) # We have this before the next Ensure Arguments block to make board_size related argument errors take priority
 
         #region Ensure Arguments
@@ -219,30 +249,6 @@ class Game():
         self.connect_count = connect_count
         self.player1_move_provider = player1_move_provider
         self.player2_move_provider = player2_move_provider
-
-    def check_win(self, player: int):
-        '''If the given player (`player`) has won, returns a list of the tiles that gave them the won, otherwise None.'''
-        #region Ensure Arguments
-        if type(player) != int: raise TypeError(player)
-        if player not in range(1,3): raise ValueError(f'Argument \'player\' ({player}) must be within range 1-2.')
-        #endregion Ensure Arguments
-
-        for row in range(self.board.size_y):
-            for col in range(self.board.size_x - self.connect_count + 1):
-                if all(self.board.get_tile(col + i, row) == player for i in range(self.connect_count)):
-                    return [(col + i, row) for i in range(self.connect_count)]
-        for col in range(self.board.size_x):
-            for row in range(self.board.size_y - self.connect_count + 1):
-                if all(self.board.get_tile(col, row + i) == player for i in range(self.connect_count)):
-                    return [(col, row + i) for i in range(self.connect_count)]
-        for col in range(self.board.size_x - self.connect_count + 1):
-            for row in range(self.board.size_y - self.connect_count + 1):
-                if all(self.board.get_tile(col + i, row + i) == player for i in range(self.connect_count)):
-                    return [(col + i, row + i) for i in range(self.connect_count)]
-        for col in range(self.board.size_x - self.connect_count + 1):
-            for row in range(self.connect_count - 1, self.board.size_y):
-                if all(self.board.get_tile(col + i, row - i) == player for i in range(self.connect_count)):
-                    return [(col + i, row - i) for i in range(self.connect_count)]
 
     def play(self, starting_player: int = 1) -> int:
         '''Starts the game.'''
@@ -255,7 +261,7 @@ class Game():
         while True:
             # Display the board
             clear()
-            self.board.display()
+            print(self.board.display())
 
             # Get the column from the current player
             try:
@@ -281,11 +287,19 @@ class Game():
             self.board.set_tile(x,y,player)
 
             # Check if the player has won, and exit the game loop if they have
-            win_tiles = self.check_win(player)
+            win_tiles = self.board.check_win(player)
             if win_tiles != None:
                 clear()
                 print(self.board.display(win_tiles))
                 print(f'{display_tile(player)} won!')
+                print('Press ENTER to return to the menu.')
+                await_enter()
+                return player
+            
+            if self.board.is_full():
+                clear()
+                print(self.board.display())
+                print('Draw!')
                 print('Press ENTER to return to the menu.')
                 await_enter()
                 return player
@@ -295,10 +309,12 @@ class Game():
         
 #region Move Providers
 def local_move_provider(player: int, board: Board) -> int:
-    return get_int_input(f'{board.display()}\n> ',1,board.size_x)-1
+    clear()
+    return get_int_input(f'{board.display()}\n {display_tile(player)} > ',1,board.size_x)-1
 
-def cpu_move_provider(player: int, board: Board) -> int: # TODO
-    return get_int_input(f'{board.display()}\nCPU > ',1,board.size_x)-1
+def cpu_move_provider(player: int, board: Board) -> int:
+    time.sleep(0.125+random.random()*0.25)
+    return random.randint(1,board.size_x)
 #endregion Move Providers
 
 game_modes = {
@@ -389,7 +405,7 @@ while True:
                         if settings['connect_count'] > min(settings['board_columns'],settings['board_rows']): settings['connect_count'] = min(settings['board_columns'],settings['board_rows'])
 
                     if setting_name == 'connect_count':
-                        setting_type_int(2, min(settings['board_columns'],settings['board_rows']))
+                        setting_type_int(3, min(settings['board_columns'],settings['board_rows']))
                     #endregion Make sure connect_count is always a legal value
     
     else: # Play a game

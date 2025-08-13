@@ -1,6 +1,6 @@
 {
     "display_mode": "coloured_text",
-    "board_columns": 3,
+    "board_columns": 7,
     "board_rows": 6,
-    "connect_count": 3
+    "connect_count": 4
 }
