@@ -12,7 +12,7 @@ def clear():
 def colourTile(tile):
     try:
         with open("settings.json", "r") as f:
-            settings = json.load(f)
+            settings: dict = json.load(f)
         mode = settings.get("display_mode", "coloured_text")
     except (FileNotFoundError, json.JSONDecodeError):
         mode = "coloured_text"
@@ -320,12 +320,12 @@ def play_local_pvp():
     play_game(local_move_provider, local_move_provider)
 
 def play_lan_server():
-    print("PvP LAN is in maintenance due to exploits.!")
+    print("PvP LAN is in maintenance due to exploits!")
     input("Press Enter to return to menu...")
     return
         
 def play_lan_client():
-    print("PvP LAN is in maintenance due to exploits.!")
+    print("PvP LAN is in maintenance due to exploits!")
     input("Press Enter to return to menu...")
     return
 
