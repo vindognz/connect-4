@@ -1,5 +1,3 @@
-import os
-import sys
 from colours import Colours as C
 import random
 import json
@@ -9,7 +7,7 @@ import json
 # ===========================
 
 def clear():
-    os.system('cls' if sys.platform.startswith('win') else 'clear')
+    print(end='\033[2J\033[1;1H',flush=True)
 
 def colourTile(tile):
     try:
@@ -97,7 +95,7 @@ def getIntInput(prompt, board=None):
         inp = input(prompt)
         try:
             inp = int(inp)
-            if not 1 <= inp <= 7:
+            if not 1 <= inp <= 8:
                 raise ValueError
             return inp
         except ValueError:
@@ -148,12 +146,12 @@ def evalWindow(window, player):
     if player_count == 4:
         score += 100
     elif player_count == 3 and empty_count == 1:
-        score += 5
+        score += 50
     elif player_count == 2 and empty_count == 2:
         score += 2
     
     if opponent_count == 3 and empty_count == 1:
-        score -= 4
+        score -= 100
     
     return score
 
@@ -249,48 +247,6 @@ def local_move_provider(player, board):
     col = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ", board) - 1
     return col
 
-# def cpu_move_provider(player, board):
-#     col = 0
-#     def other_player_gonna_win(my_move: int|None = None) -> int|bool:
-#         if my_move == None: my_move = col
-#         my_board = deepcopy(board)
-#         my_board[my_move][my_board[my_move].index('O')] = player
-        
-#         other_p = 'Y' if player == 'R' else 'R'
-#         for other_p_col in range(len(my_board)):
-#             if 'O' not in my_board[other_p_col]:
-#                 continue
-
-#             new_board = deepcopy(my_board)
-#             new_board[other_p_col][new_board[other_p_col].index('O')] = other_p
-#             if checkWin(new_board, other_p) != None:
-#                 return other_p_col
-#         return False
-    
-#     def im_gonna_win() -> int|bool:
-#         for possible_col in range(len(my_board)):
-#             if 'O' not in my_board[other_p_col]:
-#                 continue
-
-#             new_board = deepcopy(my_board)
-#             new_board[other_p_col][new_board[other_p_col].index('O')] = other_p
-#             if checkWin(new_board, other_p) != None:
-#                 return other_p_col
-#         return False
-    
-#     # Start with a random move
-#     col = random.randint(0,6)
-#     while not any([t == 'O' for t in board[col]]):
-#         col += 1
-#         if col == 7: col = 0
-    
-#     # Prevent other player winning 1 move deep
-#     if other_player_gonna_win():
-#         col = other_player_gonna_win()
-
-#     time.sleep((random.random()*0.5)+0.25)  # Simulate thinking time
-#     return col
-
 def cpu_move_provider(player, board):
     allowedMoves = [i for i, col in enumerate(board) if 'O' in col]
 
@@ -374,8 +330,22 @@ def play_lan_client():
     return
 
 def play_vs_computer():
-    # play_game(cpu_move_provider, local_move_provider)
-    # play_game(local_move_provider, cpu_move_provider)
+
+    while True:
+        inp = input("Do you want to play as red or yellow? ")
+        try:
+            if not inp in ["r", "red", "y", "yellow"]:
+                raise ValueError
+            break
+        except ValueError:
+            print("Enter 'r', 'red', 'y' or 'yellow'.")
+
+    if inp in ["r", "red"]:
+        play_game(local_move_provider, cpu_move_provider)
+    elif inp in ["y", "yellow"]:
+        play_game(cpu_move_provider, local_move_provider)
+
+def cpu_vs_cpu():
     play_game(cpu_move_provider, cpu_move_provider)
 
 # ===========================
@@ -391,13 +361,13 @@ def edit_settings():
     }
 
     # Load existing settings
-    if os.path.exists(settings_file):
+    try:
         with open(settings_file, "r") as f:
             try:
                 settings = json.load(f)
             except json.JSONDecodeError:
                 settings = default_settings.copy()
-    else:
+    except:
         settings = default_settings.copy()
 
     # Keep a copy for detecting unsaved changes
@@ -464,11 +434,12 @@ def edit_settings():
 while True:
     clear()
     print("How do you want to play?")
-    print("1. PvP (same device)")
-    print("2. PvP (LAN)")
-    print("3. PvC (vs computer)")
-    print("4. Edit settings")
-    print("5. Quit")
+    print("1. Player vs Player (same device)")
+    print("2. Player vs Player (LAN)")
+    print("3. Player vs CPU")
+    print("4. CPU vs CPU")
+    print("5. Edit settings")
+    print("6. Quit")
     choice = input("Choose 1-4: ").strip()
     if choice == "1":
         play_local_pvp()
@@ -480,8 +451,10 @@ while True:
     elif choice == "3":
         play_vs_computer()
     elif choice == "4":
-        edit_settings()
+        cpu_vs_cpu()
     elif choice == "5":
+        edit_settings()
+    elif choice == "6":
         break
     else:
         input("Invalid choice. Press Enter to try again...")
