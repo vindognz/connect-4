@@ -1,6 +1,5 @@
 # Imports
 import pygame
-from pygame import Vector2 as v2, Color as Colour
 
 from button import Button
 
@@ -10,7 +9,8 @@ TARGET_FPS = 60
 
 # pygame inits
 pygame.init()
-display = pygame.display.set_mode(v2(WINDOW_SIZE))
+font = pygame.font.Font("Baloo2-Bold.ttf", 40)
+display = pygame.display.set_mode(WINDOW_SIZE)
 clock = pygame.time.Clock()
 
 # more variable inits
@@ -64,9 +64,8 @@ if __name__ == "__main__":
     x = WINDOW_SIZE[0] / 2 - width / 2 # center of the screen horizontally
     y = (WINDOW_SIZE[1] / 2 - height / 2) # center of the screen vertically
 
-    # === Color Variables ===
     primary_color = (70, 130, 180)    # button background
-    hover_color   = (100, 149, 237)   # button hover
+    hover_color   = (51, 102, 145)    # button hover
     text_color    = (245, 245, 245)   # button text
     tile_color    = (200, 200, 200)   # tile main
     tile_hover    = (170, 170, 170)   # tile hover
@@ -111,6 +110,10 @@ if __name__ == "__main__":
             start_button.draw(display)
             settings_button.draw(display)
         elif menu == "settings":
+            text_surface = font.render("No settings yet :(", True, text_color)
+            text_rect = text_surface.get_rect(center=(WINDOW_SIZE[0] / 2, WINDOW_SIZE[1] / 2 - 100))
+            display.blit(text_surface, text_rect)
+
             go_back_button.draw(display)
         # basic connect-4 ahh grid
         elif menu == "game":
