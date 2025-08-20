@@ -62,7 +62,7 @@ if __name__ == "__main__":
     height = 75
 
     x = WINDOW_SIZE[0] / 2 - width / 2 # center of the screen horizontally
-    y = (WINDOW_SIZE[1] / 2 - height / 2) # center of the screen vertically
+    y = WINDOW_SIZE[1] / 2 - height / 2 # center of the screen vertically
 
     primary_color = (70, 130, 180)    # button background
     hover_color   = (51, 102, 145)    # button hover

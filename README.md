@@ -33,3 +33,7 @@ Both game modes include:
 ### Player vs CPU
 
 - Fix priority issues: sometimes the CPU prefers a vertical 3-in-a-row instead of completing a horizontal win.
+
+### GUI
+
+- Make all the menus a big ol dict for cleanliness

@@ -85,13 +85,12 @@ def printBoard(board):
 
     print(f"{top}\n{'\n'.join(rows)}\n{bottom}")
 
-
 def getIntInput(prompt, board=None):
     while True:
         inp = input(prompt)
         try:
             inp = int(inp)
-            if not 1 <= inp <= 8:
+            if not 1 <= inp <= 7:
                 raise ValueError
             return inp
         except ValueError:
@@ -254,16 +253,14 @@ def cpu_move_provider(player, board):
     best_score = float('-inf') if player == 'R' else float('inf')
     best_move = None
 
-    # try:
-    #     with open("settings.json", "r") as f:
-    #         settings = json.load(f)
-    #         print(f"Settings: {settings}")
-    #         search_depth = settings.get("cpu_search_depth", 5)
-    #         print(f"search depth: {search_depth}")
-    # except (FileNotFoundError, json.JSONDecodeError):
-    #     search_depth = 5
-
-    search_depth = 5
+    try:
+        with open("settings.json", "r") as f:
+            settings = json.load(f)
+            print(f"Settings: {settings}")
+            search_depth = settings.get("cpu_search_depth", 5)
+            print(f"search depth: {search_depth}")
+    except (FileNotFoundError, json.JSONDecodeError):
+        search_depth = 5
 
     maximising = True if player == 'R' else False
 
@@ -501,28 +498,3 @@ while True:
         break
     else:
         input("Invalid choice. Press ENTER to try again...")
-
-"""
-RED Drawstring
-3
-4
-4
-3
-5
-3
-3
-3
-5
-1
-1
-1
-7
-7
-7
-2
-2
-2
-6
-6
-6
-"""
