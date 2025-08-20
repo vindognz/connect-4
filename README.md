@@ -1,19 +1,23 @@
-# connect-4
+# PyConnect-4
 
-This will eventually become a connect-4 game written in Python with an AI opponent you can play.
+As the name suggests, this is Connect-4, made in Python. There are two versions, CLI, where you play the game in a terminal, and GUI where you play in a PyGame GUI.
 
-I will make and train the AI myself.
+## Both gamemodes feature:
 
-I might make a GUI in Pygame, depends if i cbs
+**Player vs Player (on the same device)**
+**~~Player vs Player (LAN)~~**
+**Player vs CPU (a minimax algorithm that is VERY strong)**
 
-todo list:
-~~player vs player on the same device~~, player vs player lan, and player vs computer
+**A settings system, which allows the user to switch between tile display modes, as well as change the strength of the CPU.**
 
-pvp lan todo:
-    (It's in maintenance rn cuz of 1,000,000 serious vulns)
-    remember the last ip you played against. remember ip input with a name?
-    stop multiple ppl joining one game (or add spectators)
-    make it so when ppl leave, the game ends instead of hanging or crashing.
+## To-do list:
 
-player vs computer todo:
-    sometimes it prioritizes vertical 3-in-a-rows instead of a win. (balance threat and winning)
+### Player vs Player (LAN):
+    (take it out of maintenance)
+    remember the last ip you played against. remember ip by hostname of pc?
+        like remember all the ips youve played against and store the hostname - ip combo in a file so you can play against "t495" instead of 192.168.1.xxx
+    stop more than 2 people joining one game (or implement a spectator system ig)
+    make it so when people leave, the game actually ends instead of just sitting there / crashing.
+
+### Player vs CPU:
+    fix priorities, as sometimes it prefers a vertical 3 in a row instead of a horizontal win.
