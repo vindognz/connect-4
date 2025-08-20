@@ -4,11 +4,11 @@ As the name suggests, this is Connect-4, made in Python. There are two versions,
 
 ## Both gamemodes feature:
 
-**Player vs Player (on the same device)**
-**~~Player vs Player (LAN)~~**
-**Player vs CPU (a minimax algorithm that is VERY strong)**
+Player vs Player (on the same device)
+~~Player vs Player (LAN)~~
+Player vs CPU (a minimax algorithm that is VERY strong)
 
-**A settings system, which allows the user to switch between tile display modes, as well as change the strength of the CPU.**
+A settings system, which allows the user to switch between tile display modes, as well as change the strength of the CPU.
 
 ## To-do list:
 
