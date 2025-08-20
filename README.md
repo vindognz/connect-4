@@ -1,22 +1,35 @@
 # PyConnect-4
 
-**As the name suggests, this is Connect-4, made in Python. There are two versions, CLI, where you play the game in a terminal, and GUI where you play in a PyGame GUI.**
+**PyConnect-4** is, as the name suggests, a Python implementation of the classic Connect-4 game.  
+It comes with **two game modes**:  
 
-## Both gamemodes feature:
-    Player vs Player (on the same device)
-    ~~Player vs Player (LAN)~~
-    Player vs CPU (a minimax algorithm that is VERY strong)
+- **CLI**: Play directly in the terminal.  
+- **GUI**: Play using a PyGame graphical interface.  
 
-    A settings system, which allows the user to switch between tile display modes, as well as change the strength of the CPU.
+---
 
-## To-do list:
+## Features
 
-### Player vs Player (LAN):
-    (take it out of maintenance)
-    remember the last ip you played against. remember ip by hostname of pc?
-        like remember all the ips youve played against and store the hostname - ip combo in a file so you can play against "t495" instead of 192.168.1.xxx
-    stop more than 2 people joining one game (or implement a spectator system ig)
-    make it so when people leave, the game actually ends instead of just sitting there / crashing.
+Both game modes include:  
 
-### Player vs CPU:
-    fix priorities, as sometimes it prefers a vertical 3 in a row instead of a horizontal win.
+- Player vs Player (on the same device)  
+- ~~Player vs Player (LAN)~~ *(currently under maintenance)*  
+- Player vs CPU (uses a strong minimax algorithm)  
+- Settings system (adjust display mode and CPU strength)  
+
+---
+
+## To-Do List
+
+### Player vs Player (LAN)
+
+- Take it out of maintenance.  
+- Remember the last IP you played against:  
+  - Optionally store IP by hostname.  
+  - Keep a file with all previously played hostname–IP pairs to allow connecting using the computers hostname like `t495` instead of `192.168.1.xxx`.  
+- Prevent more than 2 people from joining a single game (or consider adding a spectator mode).  
+- Make sure the game ends properly when players leave, instead of freezing or crashing.  
+
+### Player vs CPU
+
+- Fix priority issues: sometimes the CPU prefers a vertical 3-in-a-row instead of completing a horizontal win.  
