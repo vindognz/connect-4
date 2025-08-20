@@ -32,4 +32,4 @@ Both game modes include:
 
 ### Player vs CPU
 
-- Fix priority issues: sometimes the CPU prefers a vertical 3-in-a-row instead of completing a horizontal win.  
+- Fix priority issues: sometimes the CPU prefers a vertical 3-in-a-row instead of completing a horizontal win.
