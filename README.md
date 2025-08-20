@@ -14,3 +14,6 @@ pvp lan todo:
     remember the last ip you played against. remember ip input with a name?
     stop multiple ppl joining one game (or add spectators)
     make it so when ppl leave, the game ends instead of hanging or crashing.
+
+player vs computer todo:
+    sometimes it prioritizes vertical 3-in-a-rows instead of a win. (balance threat and winning)

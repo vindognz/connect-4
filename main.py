@@ -83,10 +83,6 @@ def printBoard(board):
 ============================={C.END}"""
         bottom = f"{C.BOLD}==1===2===3===4===5===6===7=={C.END}"
 
-#     print(f"""        {C.BOLD}CONNECT  FOUR
-# ============================={C.END}
-# {'\n'.join(rows)}
-# {C.BOLD}==1===2===3===4===5===6===7=={C.END}""")
     print(f"{top}\n{'\n'.join(rows)}\n{bottom}")
 
 
@@ -124,13 +120,18 @@ def checkWin(board, player):
             if all(board[col + i][row - i] == player for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
 
+def checkFull(board):
+    if all('O' not in col for col in board):
+        return True
+
+    return False
+
 def isTerminalNode(board):
     if checkWin(board, 'R'):
         return "WinX"
     elif checkWin(board, 'Y'):
         return "WinY"
-
-    if all('O' not in col for col in board):
+    elif checkFull(board):
         return "Draw"
 
     return False
@@ -253,7 +254,17 @@ def cpu_move_provider(player, board):
     best_score = float('-inf') if player == 'R' else float('inf')
     best_move = None
 
+    # try:
+    #     with open("settings.json", "r") as f:
+    #         settings = json.load(f)
+    #         print(f"Settings: {settings}")
+    #         search_depth = settings.get("cpu_search_depth", 5)
+    #         print(f"search depth: {search_depth}")
+    # except (FileNotFoundError, json.JSONDecodeError):
+    #     search_depth = 5
+
     search_depth = 5
+
     maximising = True if player == 'R' else False
 
     for move in allowedMoves:
@@ -288,7 +299,6 @@ def play_game(player1_get_move, player2_get_move):
         clear()
         printBoard(board)
 
-        # Get column from correct player
         if player == 'R':
             col = player1_get_move(player, board)
         else:
@@ -310,6 +320,13 @@ def play_game(player1_get_move, player2_get_move):
             print(f"{colourTile(player)} won!")
             input("Press ENTER to return to the menu.")
             break
+            
+        if checkFull(board):
+            clear()
+            printBoard(board)
+            print("Its a draw!")
+            input("Press ENTER to return to the menu.")
+            break
 
         player = 'Y' if player == 'R' else 'R'
 
@@ -321,12 +338,12 @@ def play_local_pvp():
 
 def play_lan_server():
     print("PvP LAN is in maintenance due to exploits.!")
-    input("Press Enter to return to menu...")
+    input("Press ENTER to return to menu...")
     return
         
 def play_lan_client():
     print("PvP LAN is in maintenance due to exploits.!")
-    input("Press Enter to return to menu...")
+    input("Press ENTER to return to menu...")
     return
 
 def play_vs_computer():
@@ -338,7 +355,7 @@ def play_vs_computer():
                 raise ValueError
             break
         except ValueError:
-            print("Enter 'r', 'red', 'y' or 'yellow'.")
+            print("ENTER 'r', 'red', 'y' or 'yellow'.")
 
     if inp in ["r", "red"]:
         play_game(local_move_provider, cpu_move_provider)
@@ -357,7 +374,8 @@ def edit_settings():
 
     # Default settings if no file exists
     default_settings = {
-        "display_mode": "coloured_text"  # options: coloured_text, coloured_background, emojis
+        "display_mode": "coloured_text",  # options: coloured_text, coloured_background, emojis
+        "cpu_search_depth": 5             # options: 1-9
     }
 
     # Load existing settings
@@ -377,12 +395,13 @@ def edit_settings():
         with open(settings_file, "w") as f:
             json.dump(settings, f, indent=4)
         print("Settings saved.")
-        input("Press Enter to return to main menu...")
+        input("Press ENTER to return to main menu...")
 
     while True:
         clear()
         print("=== Settings Menu ===")
         print("1. Display Mode")
+        print("2. CPU Search Depth")
         print("--------------------")
         print("S. Save and Exit")
         print("E. Exit without Saving")
@@ -414,7 +433,31 @@ def edit_settings():
                     settings["display_mode"] = modes[int(sub_choice) - 1][0]
                     print(f"Display mode set to {settings['display_mode']}")
                 else:
-                    input("Invalid choice. Press Enter to try again...")
+                    input("Invalid choice. Press ENTER to try again...")
+
+        elif choice == "2":
+            # CPU Search Depth submenu
+            while True:
+                clear()
+                print("=== CPU Search Depth ===")
+                
+                print(f"Depth: {C.BOLD}{settings["cpu_search_depth"]}{C.END}")
+                print("B. Go Back")
+
+                sub_choice = input("Choose a value 1-9, or the use + / - keys: ").strip()
+                if sub_choice.lower() == 'b':
+                    break
+                elif sub_choice in ["1","2","3","4","5","6","7","8","9"]:
+                    settings["cpu_search_depth"] = sub_choice
+                elif sub_choice in ['+', '-']:
+                    settings["cpu_search_depth"] = eval(f"{settings["cpu_search_depth"]} {sub_choice}1")
+                    if settings["cpu_search_depth"] > 9:
+                        settings["cpu_search_depth"] = 9
+                    elif settings["cpu_search_depth"] < 1:
+                        settings["cpu_search_depth"] = 1
+                else:
+                    input("Invalid choice. Press ENTER to try again...")
+                
 
         elif choice == "save" or choice == "s":
             save_settings()
@@ -429,7 +472,7 @@ def edit_settings():
                 return
 
         else:
-            input("Invalid choice. Press Enter to try again...")
+            input("Invalid choice. Press ENTER to try again...")
 
 while True:
     clear()
@@ -457,4 +500,29 @@ while True:
     elif choice == "6":
         break
     else:
-        input("Invalid choice. Press Enter to try again...")
+        input("Invalid choice. Press ENTER to try again...")
+
+"""
+RED Drawstring
+3
+4
+4
+3
+5
+3
+3
+3
+5
+1
+1
+1
+7
+7
+7
+2
+2
+2
+6
+6
+6
+"""
