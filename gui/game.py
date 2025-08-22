@@ -21,15 +21,21 @@ clock = pygame.time.Clock()
 # variables
 tiles = []
 menu_manager = MenuManager(display, (30, 30, 40))  # background color
+player = "red"
 
 # colorss
-primary_color = (70, 130, 180)    # button background
-hover_color   = (51, 102, 145)    # button hover
-text_color    = (245, 245, 245)   # button text
-tile_color    = (200, 200, 200)   # tile main
-tile_hover    = (170, 170, 170)   # tile hover
-tile_text     = (50, 50, 50)      # tile text
-bg_color      = (30, 30, 40)      # main background
+primary_color     = (70, 130, 180)  # button background
+hover_color       = (51, 102, 145)  # button hover
+text_color        = (245, 245, 245) # button text
+tile_color        = (200, 200, 200) # tile main
+tile_hover        = (170, 170, 170) # tile hover
+tile_text         = (50, 50, 50)    # tile text
+bg_color          = (30, 30, 40)    # main background
+
+red_tile          = (255, 0, 0)     # the red that a red tile is
+red_tile_hover    = (220, 0, 0)     # the red that a hovered red tile is
+yellow_tile       = (255, 255, 0)   # the yellow that a yellow tile is
+yellow_tile_hover = (220, 220, 0)   # the yellow that a hovered yellow tile is
 
 # menu functions
 def start_game_func(*_):
@@ -51,21 +57,44 @@ def create_tiles():
     start_y = (WINDOW_SIZE[1] - GRID_HEIGHT) // 2
 
     for c in range(COLS):
+        col = []
         for r in range(ROWS):
             x = start_x + c * (TILE_SIZE + TILE_SPACING)
             y = start_y + r * (TILE_SIZE + TILE_SPACING)
-
+            
             tile = Button(
-                x, y, TILE_SIZE, TILE_SIZE, str(len(tiles)),
-                tile_color, tile_hover, tile_text, tile_press, None, 30, (len(tiles), c, r),
+                x, y, TILE_SIZE, TILE_SIZE, str(c * ROWS + r),
+                tile_color, tile_hover, tile_text, tile_press, None, 30, (str(c * ROWS + r), c, r),
                 rounding=5
             )
-            tiles.append(tile)
+            col.append(tile)
+        tiles.append(col)
 
-def tile_press(tile):
-    tile_id, x, y = tile.extra_data
-    print(f"TILE {tile_id} at {x},{y} PRESSED")
+def tile_press(tile: Button):
+    global player
 
+    _, col_index, _ = tile.extra_data  # we only care about column
+    column = tiles[col_index]
+
+    # find the lowest unoccupied tile in this column
+    for r in reversed(range(ROWS)):
+        target_tile = column[r]
+
+        # check if already taken (colored by a player)
+        if target_tile.color not in (red_tile, yellow_tile):
+            # claim this tile for the current player
+            target_tile.color = red_tile if player == "red" else yellow_tile
+            target_tile.hover_color = red_tile_hover if player == "red" else yellow_tile_hover
+
+            print(f"Player {player} placed at col {col_index}, row {r}")
+
+            # switch turn
+            player = "yellow" if player == "red" else "red"
+            print(f"Next turn: {player}")
+            break
+    else:
+        # column is full
+        print(f"Column {col_index} is full!")
 
 # button stuff
 width, height = 280, 75
@@ -107,12 +136,14 @@ def settings_menu_draw():
 
 # game
 def game_menu_events(event):
-    for tile in tiles:
-        tile.handle_event(event)
+    for col in tiles:
+        for tile in col:
+            tile.handle_event(event)
 
 def game_menu_draw():
-    for tile in tiles:
-        tile.draw(display)
+    for col in tiles:
+        for tile in col:
+            tile.draw(display)
 
 # register the menus
 menu_manager.register_menu("start", start_menu_events, start_menu_draw)

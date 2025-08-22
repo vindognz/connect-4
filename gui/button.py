@@ -18,14 +18,15 @@ class Button:
         text_surface = self.font.render(self.text, True, self.text_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
+    
+    def update_color(self):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            self.current_color = self.hover_color
+        else:
+            self.current_color = self.color
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEMOTION:
-            if self.rect.collidepoint(event.pos):
-                self.current_color = self.hover_color
-            else:
-                self.current_color = self.color
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.action(self)
             
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                self.action(self)
+        self.update_color()
