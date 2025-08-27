@@ -1,31 +1,47 @@
 import pygame
 
 class MenuManager:
-    def __init__(self, display, bg_color):
+    def __init__(self, display, bg_colour, menus=None):
         self.display = display
-        self.bg_color = bg_color
+        self.bg_colour = bg_colour
+        self.menus = menus or {}
         self.current_menu = None
-        self.event_handlers = {}
-        self.draw_handlers = {}
 
-    # switch menu, and clear the screen
     def change_menu(self, name):
-        if name not in self.draw_handlers:
-            raise ValueError(f"Menu: '{name} not registered")
+        if name not in self.menus:
+            raise ValueError(f"Menu '{name}' not registered")
         self.current_menu = name
-        self.display.fill(self.bg_color)
+        self.display.fill(self.bg_colour)
 
-    # register a menus event and draw functions
-    def register_menu(self, name, event_handler, draw_handler):
-        self.event_handlers[name] = event_handler
-        self.draw_handlers[name] = draw_handler
+    def register_menu(self, name, buttons=None, draw=None):
+        self.menus[name] = {
+            "buttons": buttons or [],
+            "draw": draw
+        }
 
-    # pass event to the menu handler
     def handle_event(self, event):
-        if self.current_menu in self.event_handlers:
-            self.event_handlers[self.current_menu](event)
+        if not self.current_menu:
+            return
+        buttons = self.menus[self.current_menu]["buttons"]
 
-    # draw the current menu
+        # handle dynamic buttons (function returning list)
+        if callable(buttons):
+            buttons = buttons()
+
+        for b in buttons:
+            b.handle_event(event)
+
     def draw(self):
-        if self.current_menu in self.draw_handlers:
-            self.draw_handlers[self.current_menu]()
+        if not self.current_menu:
+            return
+        buttons = self.menus[self.current_menu]["buttons"]
+        draw_callback = self.menus[self.current_menu]["draw"]
+
+        if callable(buttons):
+            buttons = buttons()
+
+        for b in buttons:
+            b.draw(self.display)
+
+        if draw_callback:
+            draw_callback(self.display)
