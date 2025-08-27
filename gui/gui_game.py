@@ -5,10 +5,12 @@ from menu_manager import MenuManager
 
 # consts
 ROOT_PATH = Path(__file__).parent
-WINDOW_SIZE = (768, 768)
+
 TARGET_FPS = 60
 COLS, ROWS = 7, 6
 TILE_SIZE, TILE_SPACING = 50, 20
+
+WINDOW_WIDTH, WINDOW_HEIGHT = 768, 768
 
 GRID_WIDTH = COLS * TILE_SIZE + (COLS - 1) * TILE_SPACING
 GRID_HEIGHT = ROWS * TILE_SIZE + (ROWS - 1) * TILE_SPACING
@@ -24,7 +26,7 @@ CURSOR_MARGIN = 14
 # inits
 pygame.init()
 font = pygame.font.Font(ROOT_PATH / "Baloo2-Bold.ttf", 50)
-display = pygame.display.set_mode(WINDOW_SIZE)
+display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 clock = pygame.time.Clock()
 
 # colours
@@ -48,7 +50,7 @@ board_full = False
 winner = None
 
 # cursor state
-cursor_col = 0
+cursor_col = COLS // 2
 
 # repeat cursor move
 key_held = None
@@ -61,8 +63,8 @@ def create_tiles():
     global tiles, GRID_ORIGIN_X, GRID_ORIGIN_Y
     tiles = []
 
-    start_x = (WINDOW_SIZE[0] - GRID_WIDTH) // 2
-    start_y = (WINDOW_SIZE[1] - GRID_HEIGHT) // 2
+    start_x = (WINDOW_WIDTH - GRID_WIDTH) // 2
+    start_y = (WINDOW_HEIGHT - GRID_HEIGHT) // 2
 
     GRID_ORIGIN_X, GRID_ORIGIN_Y = start_x, start_y
 
@@ -99,22 +101,21 @@ def check_win():
 
     colours = [yellow_tile, yellow_tile_hover] if player == "yellow" else [red_tile, red_tile_hover]
 
-    rows, cols = (6, 7)
     winCount = 4
-    for row in range(rows):
-        for col in range(cols - winCount + 1):
+    for row in range(ROWS):
+        for col in range(COLS - winCount + 1):
             if all(tiles[col + i][row].colour in colours for i in range(winCount)):
                 return [(col + i, row) for i in range(winCount)]
-    for col in range(cols):
-        for row in range(rows - winCount + 1):
+    for col in range(COLS):
+        for row in range(ROWS - winCount + 1):
             if all(tiles[col][row + i].colour in colours for i in range(winCount)):
                 return [(col, row + i) for i in range(winCount)]
-    for col in range(cols - winCount + 1):
-        for row in range(rows - winCount + 1):
+    for col in range(COLS - winCount + 1):
+        for row in range(ROWS - winCount + 1):
             if all(tiles[col + i][row + i].colour in colours for i in range(winCount)):
                 return [(col + i, row + i) for i in range(winCount)]
-    for col in range(cols - winCount + 1):
-        for row in range(winCount - 1, rows):
+    for col in range(COLS - winCount + 1):
+        for row in range(winCount - 1, ROWS):
             if all(tiles[col + i][row - i].colour in colours for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
 
@@ -151,8 +152,8 @@ def tile_press(tile: Button):
 
 # buttons
 width, height = 280, 75
-x = WINDOW_SIZE[0] / 2 - width / 2
-y = WINDOW_SIZE[1] / 2 - height / 2
+x = WINDOW_WIDTH / 2 - width / 2
+y = WINDOW_HEIGHT / 2 - height / 2
 
 start_button = Button(x, y - 100, width, height, "Start Game",
                       primary_colour, hover_colour, text_colour,
@@ -183,13 +184,13 @@ def start_game():
     board_full = False
     winner = None
     player = "red"
-    cursor_col = 0
+    cursor_col = COLS // 2
     create_tiles()
     menu_manager.change_menu("game")
 
 def draw_settings(display):
     text_surface = font.render("No settings yet :(", True, text_colour)
-    text_rect = text_surface.get_rect(center=(WINDOW_SIZE[0] / 2, WINDOW_SIZE[1] / 2 - 100))
+    text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 100))
     display.blit(text_surface, text_rect)
 
 # checks if a column is full
@@ -222,7 +223,7 @@ def draw_ghost_piece(display):
     # create surface with alpha
     surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
     pygame.draw.circle(surf, ghost_color, (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2 - 4)
-    # --- NEW: white outline ---
+    # white outline for ghost
     pygame.draw.circle(surf, (255, 255, 255), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2 - 4, 3)
 
     display.blit(surf, (x, y))
@@ -252,6 +253,7 @@ def draw_game(display):
                 game_over_text.text_colour = yellow_tile
         else:
             game_over_text.text = "It's a draw!"
+            game_over_text.text_colour = text_colour
         game_over_button.draw(display)
     else:
         game_over_text.text = "Red's turn!" if player == "red" else "Yellow's turn!"
@@ -311,7 +313,7 @@ if __name__ == "__main__":
                     move_cursor("right")
                     key_held = "right"
                     key_held_time = 0
-                elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_SPACE):
                     if tiles and not board_full and not column_is_full(cursor_col):
                         play_move(cursor_col)
             elif event.type == pygame.KEYUP:
