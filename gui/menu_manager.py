@@ -11,7 +11,6 @@ class MenuManager:
         if name not in self.menus:
             raise ValueError(f"Menu '{name}' not registered")
         self.current_menu = name
-        self.display.fill(self.bg_colour)
 
     def register_menu(self, name, buttons=None, draw=None):
         self.menus[name] = {

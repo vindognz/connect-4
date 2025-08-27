@@ -173,11 +173,25 @@ def draw_settings(display):
 def draw_game(display):
     if board_full:
         if winner:
-            game_over_text.text = f"{winner.upper()} wins!"
+            game_over_text.text = f"{winner.title()} wins!"
+            # Set the text colour based on the winner
+            if winner == "red":
+                game_over_text.text_colour = red_tile
+            elif winner == "yellow":
+                game_over_text.text_colour = yellow_tile
         else:
-            game_over_text.text = "Draw!"
+            game_over_text.text = "It's a draw!"
         game_over_button.draw(display)
-        game_over_text.draw(display)
+    else:
+        game_over_text.text = "Red's turn!" if player == "red" else "Yellow's turn!"
+        if player == "red":
+            game_over_text.text_colour = red_tile
+        elif player == "yellow":
+            game_over_text.text_colour = yellow_tile
+    
+    
+    game_over_text.draw(display)
+    
 
 # menu manager init + setup
 menu_manager = MenuManager(display, bg_colour)
@@ -205,10 +219,14 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                elif event.key == pygame.K_d:
+                    board_full = True
             menu_manager.handle_event(event)
 
+        display.fill(bg_colour)
         menu_manager.draw()
         pygame.display.flip()
         clock.tick(TARGET_FPS)
