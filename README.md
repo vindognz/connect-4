@@ -37,3 +37,5 @@ Both game modes include:
 ### GUI
 
 - Add the CPU
+- animations
+- make the cursor follow the mouse

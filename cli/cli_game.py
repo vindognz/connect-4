@@ -256,9 +256,7 @@ def cpu_move_provider(player, board):
     try:
         with open("settings.json", "r") as f:
             settings = json.load(f)
-            print(f"Settings: {settings}")
             search_depth = settings.get("cpu_search_depth", 5)
-            print(f"search depth: {search_depth}")
     except (FileNotFoundError, json.JSONDecodeError):
         search_depth = 5
 
