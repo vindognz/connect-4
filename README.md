@@ -36,4 +36,4 @@ Both game modes include:
 
 ### GUI
 
-- Make all the menus a big ol dict for cleanliness
+- Add the CPU
