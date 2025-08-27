@@ -1,32 +1,33 @@
 import pygame
 
 class Button:
-    def __init__(self, x, y, width, height, text, color, hover_color, text_color, action, font, font_size, extra_data = None, rounding = 0):
+    def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data = None, rounding = 0):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
-        self.color = color
-        self.hover_color = hover_color
-        self.text_color = text_color
-        self.current_color = color
+        self.colour = colour
+        self.hover_colour = hover_colour
+        self.text_colour = text_colour
+        self.current_colour = colour
         self.action = action
         self.font = pygame.font.Font(font, font_size)
         self.extra_data = extra_data
         self.rounding = rounding
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.current_color, self.rect, border_radius=self.rounding)
-        text_surface = self.font.render(self.text, True, self.text_color)
+        pygame.draw.rect(screen, self.current_colour, self.rect, border_radius=self.rounding)
+        text_surface = self.font.render(self.text, True, self.text_colour)
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
     
-    def update_color(self):
+    def update_colour(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()):
-            self.current_color = self.hover_color
+            self.current_colour = self.hover_colour
         else:
-            self.current_color = self.color
+            self.current_colour = self.colour
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
-            self.action(self)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.rect.collidepoint(event.pos):
+            if self.action:
+                self.action(self)
             
-        self.update_color()
+        self.update_colour()
