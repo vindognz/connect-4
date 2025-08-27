@@ -1,4 +1,5 @@
 import pygame
+from pathlib import Path
 
 class Button:
     def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data = None, rounding = 0):
@@ -9,9 +10,17 @@ class Button:
         self.text_colour = text_colour
         self.current_colour = colour
         self.action = action
-        self.font = pygame.font.Font(font, font_size)
         self.extra_data = extra_data
         self.rounding = rounding
+
+        if isinstance(font, pygame.font.Font):
+            self.font = font
+        elif isinstance(font, (str, Path)):
+            if font_size is None:
+                raise ValueError("font_size must be given when passing a font path")
+            self.font = pygame.font.Font(str(font), font_size)
+        else:
+            self.font = pygame.font.Font(None, font_size)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.current_colour, self.rect, border_radius=self.rounding)

@@ -1,8 +1,10 @@
 import pygame
+from pathlib import Path
 from button import Button
 from menu_manager import MenuManager
 
 # consts
+ROOT_PATH = Path(__file__).parent
 WINDOW_SIZE = (768, 768)
 TARGET_FPS = 60
 COLS, ROWS = 7, 6
@@ -13,7 +15,7 @@ GRID_HEIGHT = ROWS * TILE_SIZE + (ROWS - 1) * TILE_SPACING
 
 # inits
 pygame.init()
-font = pygame.font.Font("Baloo2-Bold.ttf", 40)
+font = pygame.font.Font(ROOT_PATH / "Baloo2-Bold.ttf", 50)
 display = pygame.display.set_mode(WINDOW_SIZE)
 clock = pygame.time.Clock()
 
@@ -133,26 +135,26 @@ y = WINDOW_SIZE[1] / 2 - height / 2
 
 start_button = Button(x, y - 100, width, height, "Start Game",
                       primary_colour, hover_colour, text_colour,
-                      lambda *_: start_game(), "Baloo2-Bold.ttf", 50, rounding=8)
+                      lambda *_: start_game(), font, 50, rounding=8)
 
 settings_button = Button(x, y - 100 + height * 2, width, height, "Settings",
                          primary_colour, hover_colour, text_colour,
                          lambda *_: menu_manager.change_menu("settings"),
-                         "Baloo2-Bold.ttf", 50, rounding=8)
+                         font, 50, rounding=8)
 
 go_back_button = Button(x, y, width, height, "Go back",
                         primary_colour, hover_colour, text_colour,
                         lambda *_: menu_manager.change_menu("start"),
-                        "Baloo2-Bold.ttf", 50, rounding=8)
+                        font, 50, rounding=8)
 
 game_over_button = Button(x, y * 2 - 50, width, height, "Go back",
                           primary_colour, hover_colour, text_colour,
                           lambda *_: menu_manager.change_menu("start"),
-                          "Baloo2-Bold.ttf", 50, rounding=8)
+                          font, 50, rounding=8)
 
 game_over_text = Button(x, 50, width, height / 1.5, "text",
                         bg_colour, (0, 0, 0), text_colour,
-                        None, "Baloo2-Bold.ttf", 50, rounding=8)
+                        None, font, 50, rounding=8)
 
 # menu callbacks
 def start_game():
