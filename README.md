@@ -38,4 +38,4 @@ Both game modes include:
 
 - Add the CPU
 - animations
-- make the cursor follow the mouse
+- highlight the last dropped tile for the ppl who arent paying attention

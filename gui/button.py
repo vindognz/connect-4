@@ -2,7 +2,7 @@ import pygame
 from pathlib import Path
 
 class Button:
-    def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data=None, rounding=0, outline_colour=None, outline_width=0):
+    def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data=None, rounding=0, outline_colour=None, outline_width=0, hover_action = None):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.colour = colour
@@ -10,6 +10,7 @@ class Button:
         self.text_colour = text_colour
         self.current_colour = colour
         self.action = action
+        self.hover_action = hover_action
         self.extra_data = extra_data
         self.rounding = rounding
         self.outline_colour = outline_colour
@@ -42,7 +43,8 @@ class Button:
             self.current_colour = self.colour
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.rect.collidepoint(event.pos):
-            if self.action:
-                self.action(self)
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and self.rect.collidepoint(event.pos) and callable(self.action):
+            self.action(self)
+        if event.type == pygame.MOUSEMOTION and self.rect.collidepoint(event.pos) and callable(self.hover_action):
+            self.hover_action(self)
         self.update_colour()

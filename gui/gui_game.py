@@ -77,7 +77,8 @@ def create_tiles():
                 x, y, TILE_SIZE, TILE_SIZE, "",
                 tile_colour, tile_hover, tile_text,
                 tile_press, None, 30, (c, r),
-                rounding=30, outline_colour=(0,0,0), outline_width=5
+                rounding=30, outline_colour=(0,0,0), outline_width=5,
+                hover_action=tile_hover_event
             )
             col.append(tile)
         tiles.append(col)
@@ -136,9 +137,12 @@ def play_move(col_index: int):
     if row_dropped is None:
         return
 
-    win = check_win()
-    if win:
+    wins = check_win()
+    if wins:
         winner = player
+        for winX, winY in wins:
+            tiles[winX][winY].outline_width = 5
+            tiles[winX][winY].outline_colour = (0, 255, 0)
         board_full = True
     elif is_board_full():
         winner = None
@@ -149,6 +153,11 @@ def play_move(col_index: int):
 def tile_press(tile: Button):
     col_index, _row_index = tile.extra_data
     play_move(col_index)
+
+def tile_hover_event(tile: Button):
+    col_index, _row_index = tile.extra_data
+    global cursor_col
+    cursor_col = col_index
 
 # buttons
 width, height = 280, 75
