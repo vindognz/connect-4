@@ -37,6 +37,7 @@ tile_colour        = (200, 200, 200)
 tile_hover         = (170, 170, 170)
 tile_text          = (50, 50, 50)
 bg_colour          = (30, 30, 40)
+win_outline_colour         = (0, 255, 0)
 
 red_tile           = (255, 0, 0)
 red_tile_hover     = (220, 0, 0)
@@ -51,6 +52,8 @@ winner = None
 
 # cursor state
 cursor_col = COLS // 2
+
+last_tile = None
 
 # repeat cursor move
 key_held = None
@@ -95,8 +98,7 @@ def drop_tile(col_index):
                 target_tile.colour = yellow_tile
                 target_tile.hover_colour = yellow_tile_hover
             return r
-    return None
-
+    
 def check_win():
     global tiles, player
 
@@ -129,7 +131,7 @@ def is_board_full():
 
 # drop a tile in a column
 def play_move(col_index: int):
-    global board_full, winner, player
+    global board_full, winner, player, last_tile
     if board_full or not tiles:
         return
 
@@ -137,12 +139,16 @@ def play_move(col_index: int):
     if row_dropped is None:
         return
 
+    if last_tile:
+        tiles[last_tile[0]][last_tile[1]].img = None
+    last_tile = (col_index, row_dropped)
+
     wins = check_win()
     if wins:
         winner = player
         for winX, winY in wins:
             tiles[winX][winY].outline_width = 5
-            tiles[winX][winY].outline_colour = (0, 255, 0)
+            tiles[winX][winY].outline_colour = win_outline_colour
         board_full = True
     elif is_board_full():
         winner = None
@@ -211,8 +217,7 @@ def lowest_empty_row(c: int):
     for r in reversed(range(ROWS)):
         if tiles[c][r].colour == tile_colour:
             return r
-    return None
-
+    
 # ghost preview tile
 def draw_ghost_piece(display):
     if not tiles or GRID_ORIGIN_X is None:
@@ -273,6 +278,10 @@ def draw_game(display):
         draw_cursor(display)
         draw_ghost_piece(display)
 
+    if last_tile:
+        img = pygame.image.load(str(ROOT_PATH / "star.png"))
+        tiles[last_tile[0]][last_tile[1]].img = img
+ 
 # menu manager init
 menu_manager = MenuManager(display, bg_colour)
 

@@ -38,4 +38,6 @@ Both game modes include:
 
 - Add the CPU
 - animations
-- highlight the last dropped tile for the ppl who arent paying attention
+
+
+(Cement-4, PyConnect-4 + Dementris where you forget the tiles lmao)

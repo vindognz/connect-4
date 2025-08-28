@@ -2,9 +2,10 @@ import pygame
 from pathlib import Path
 
 class Button:
-    def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data=None, rounding=0, outline_colour=None, outline_width=0, hover_action = None):
+    def __init__(self, x, y, width, height, text, colour, hover_colour, text_colour, action, font, font_size, extra_data=None, rounding=0, outline_colour=None, outline_width=0, hover_action=None, img=None):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
+        self.img = img
         self.colour = colour
         self.hover_colour = hover_colour
         self.text_colour = text_colour
@@ -35,6 +36,9 @@ class Button:
             text_surface = self.font.render(self.text, True, self.text_colour)
             text_rect = text_surface.get_rect(center=self.rect.center)
             screen.blit(text_surface, text_rect)
+
+        if self.img:
+            screen.blit(self.img, self.rect)
 
     def update_colour(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()):
