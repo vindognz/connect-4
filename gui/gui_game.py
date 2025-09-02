@@ -37,7 +37,7 @@ tile_colour        = (200, 200, 200)
 tile_hover         = (170, 170, 170)
 tile_text          = (50, 50, 50)
 bg_colour          = (30, 30, 40)
-win_outline_colour         = (0, 255, 0)
+win_outline_colour = (0, 255, 0)
 
 red_tile           = (255, 0, 0)
 red_tile_hover     = (220, 0, 0)
@@ -172,7 +172,16 @@ y = WINDOW_HEIGHT / 2 - height / 2
 
 start_button = Button(x, y - 100, width, height, "Start Game",
                       primary_colour, hover_colour, text_colour,
-                      lambda *_: start_game(), font, 50, rounding=8)
+                      lambda *_: menu_manager.change_menu("mode_pick"),
+                      font, 50, rounding=8)
+
+pvp_button = Button(x, y-height/1.5, width, height, "Player vs Player",
+                    primary_colour, hover_colour, text_colour,
+                    lambda *_: start_game("pvp"), font, 50, rounding=8)
+
+pvc_button = Button(x, y+height/1.5, width, height, "Player vs CPU",
+                    primary_colour, hover_colour, text_colour,
+                    lambda *_: start_game("cpu"), font, 50, rounding=8)
 
 settings_button = Button(x, y - 100 + height * 2, width, height, "Settings",
                          primary_colour, hover_colour, text_colour,
@@ -194,14 +203,18 @@ game_over_text = Button(x, 50, width, height / 1.5, "text",
                         None, font, 50, rounding=8)
 
 # menu callbacks
-def start_game():
-    global board_full, player, winner, cursor_col
-    board_full = False
-    winner = None
-    player = "red"
-    cursor_col = COLS // 2
-    create_tiles()
-    menu_manager.change_menu("game")
+def start_game(mode):
+    if mode == "pvp":
+        global board_full, winner, player, cursor_col, last_tile
+        board_full = False
+        winner = None
+        player = "red"
+        cursor_col = COLS // 2
+        last_tile = None
+        create_tiles()
+        menu_manager.change_menu("game")
+    elif mode == "cpu":
+        print("not implemented yet. give me money and i might make it fr")
 
 def draw_settings(display):
     text_surface = font.render("No settings yet :(", True, text_colour)
@@ -287,6 +300,10 @@ menu_manager = MenuManager(display, bg_colour)
 
 menu_manager.register_menu("start",
     buttons=[start_button, settings_button]
+)
+
+menu_manager.register_menu("mode_pick",
+    buttons=[pvp_button, pvc_button]
 )
 
 menu_manager.register_menu("settings",
