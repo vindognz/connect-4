@@ -144,15 +144,15 @@ def evalWindow(window, player):
 
     score = 0
     if player_count == 4:
-        score += 100
+        score += 100000  # guaranteed win
     elif player_count == 3 and empty_count == 1:
-        score += 50
+        score += 100
     elif player_count == 2 and empty_count == 2:
-        score += 2
+        score += 10
     
     if opponent_count == 3 and empty_count == 1:
-        score -= 100
-    
+        score -= 120  # prioritize blocking opponent
+
     return score
 
 def evalPositionForPlayer(board, player):
@@ -209,6 +209,7 @@ def minimax(board, depth, alpha, beta, maximisingPlayer):
             return 0
 
     allowedMoves = [i for i, col in enumerate(board) if 'O' in col]
+    allowedMoves.sort(key=lambda col: abs(3 - col))  # try center → edges
 
     if depth == 0 or not allowedMoves:
         return evalPosition(board)
@@ -244,14 +245,28 @@ def minimax(board, depth, alpha, beta, maximisingPlayer):
 # |  Player move providers  |
 # ===========================
 def local_move_provider(player, board):
+    # return random.choice([i for i, col in enumerate(board) if 'O' in col])
     col = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ", board) - 1
     return col
+
+from multiprocessing import Pool
+
+# --- New helper for multiprocessing ---
+def evaluate_move(args):
+    move, board, player, depth, maximising = args
+    newBoard = [col.copy() for col in board]
+    tile = newBoard[move].index('O')
+    newBoard[move][tile] = player
+    score = minimax(newBoard, depth - 1, float('-inf'), float('inf'), not maximising)
+    return move, score
+
+from multiprocessing import Pool
 
 def cpu_move_provider(player, board):
     allowedMoves = [i for i, col in enumerate(board) if 'O' in col]
 
-    best_score = float('-inf') if player == 'R' else float('inf')
-    best_move = None
+    # Move ordering
+    allowedMoves.sort(key=lambda col: abs(3 - col))
 
     try:
         with open("settings.json", "r") as f:
@@ -260,28 +275,18 @@ def cpu_move_provider(player, board):
     except (FileNotFoundError, json.JSONDecodeError):
         search_depth = 5
 
-    maximising = True if player == 'R' else False
+    maximising = (player == 'R')
 
-    for move in allowedMoves:
-        newBoard = [col.copy() for col in board]
-        tile = newBoard[move].index('O')
-        newBoard[move][tile] = player
+    # Prepare arguments for pool
+    args_list = [(move, board, player, search_depth, maximising) for move in allowedMoves]
 
-        score = minimax(newBoard, search_depth - 1, float('-inf'), float('inf'), not maximising)  # because next move is opponent's turn
+    with Pool() as pool:
+        results = pool.map(evaluate_move, args_list)
 
-        if player == 'R':
-            if score > best_score:
-                best_score = score
-                best_move = move
-        else:
-            if score < best_score:
-                best_score = score
-                best_move = move
-
-    if best_move is None:
-        best_move = random.choice(allowedMoves)
-
-    return best_move
+    if player == 'R':
+        return max(results, key=lambda x: x[1])[0]
+    else:
+        return min(results, key=lambda x: x[1])[0]
 
 # ===========================
 # |      Main game loop     |
@@ -443,7 +448,7 @@ def edit_settings():
                 if sub_choice.lower() == 'b':
                     break
                 elif sub_choice in ["1","2","3","4","5","6","7","8","9"]:
-                    settings["cpu_search_depth"] = sub_choice
+                    settings["cpu_search_depth"] = int(sub_choice)
                 elif sub_choice in ['+', '-']:
                     settings["cpu_search_depth"] = eval(f"{settings["cpu_search_depth"]} {sub_choice}1")
                     if settings["cpu_search_depth"] > 9:
