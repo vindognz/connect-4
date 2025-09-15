@@ -99,7 +99,7 @@ def drop_tile(col_index):
                 target_tile.hover_colour = yellow_tile_hover
             return r
     
-def check_win():
+def check_win() -> list[Button, Button, Button, Button]:
     global tiles, player
 
     colours = [yellow_tile, yellow_tile_hover] if player == "yellow" else [red_tile, red_tile_hover]
@@ -122,7 +122,7 @@ def check_win():
             if all(tiles[col + i][row - i].colour in colours for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
 
-def is_board_full():
+def is_board_full() -> bool:
     for col in tiles:
         for tile in col:
             if tile.colour == tile_colour:
@@ -140,15 +140,17 @@ def play_move(col_index: int):
         return
 
     if last_tile:
-        tiles[last_tile[0]][last_tile[1]].img = None
+        old_tile: Button = tiles[last_tile[0]][last_tile[1]]
+        old_tile.img = None
     last_tile = (col_index, row_dropped)
 
     wins = check_win()
     if wins:
         winner = player
         for winX, winY in wins:
-            tiles[winX][winY].outline_width = 5
-            tiles[winX][winY].outline_colour = win_outline_colour
+            tile: Button = tiles[winX][winY]
+            tile.outline_width = 5
+            tile.outline_colour = win_outline_colour
         board_full = True
     elif is_board_full():
         winner = None
@@ -175,11 +177,11 @@ start_button = Button(x, y - 100, width, height, "Start Game",
                       lambda *_: menu_manager.change_menu("mode_pick"),
                       font, 50, rounding=8)
 
-pvp_button = Button(x, y-height/1.5, width, height, "Player vs Player",
+pvp_button = Button(x-50, y-height/1.5, width+100, height, "Player vs Player",
                     primary_colour, hover_colour, text_colour,
                     lambda *_: start_game("pvp"), font, 50, rounding=8)
 
-pvc_button = Button(x, y+height/1.5, width, height, "Player vs CPU",
+pvc_button = Button(x-50, y+height/1.5, width+100, height, "Player vs CPU",
                     primary_colour, hover_colour, text_colour,
                     lambda *_: start_game("cpu"), font, 50, rounding=8)
 

@@ -32,7 +32,12 @@ Both game modes include:
 
 ### Player vs CPU
 
-- Fix priority issues: sometimes the CPU prefers a vertical 3-in-a-row instead of completing a horizontal win.
+- better eval heuristics
+- order allowedMoves to try more promising moves first
+- cache / transposition table (avoid rechecking already evaled positions)
+- if a move results in a win, immediately return without recursion
+- MAYBE refactor to a bitboard approach (MUCH MUCH faster cuz bitwise operations)
+- parallel operations
 
 ### GUI
 
