@@ -46,3 +46,10 @@ Both game modes include:
 
 
 (Cement-4, PyConnect-4 + Dementris where you forget the tiles lmao)
+
+
+
+
+
+
+move the cursor to the top cuz it makes more sense, make it point down.

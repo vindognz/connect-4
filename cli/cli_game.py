@@ -260,8 +260,6 @@ def evaluate_move(args):
     score = minimax(newBoard, depth - 1, float('-inf'), float('inf'), not maximising)
     return move, score
 
-from multiprocessing import Pool
-
 def cpu_move_provider(player, board):
     allowedMoves = [i for i, col in enumerate(board) if 'O' in col]
 
