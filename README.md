@@ -32,24 +32,16 @@ Both game modes include:
 
 ### Player vs CPU
 
-- better eval heuristics
-- order allowedMoves to try more promising moves first
 - cache / transposition table (avoid rechecking already evaled positions)
 - if a move results in a win, immediately return without recursion
 - MAYBE refactor to a bitboard approach (MUCH MUCH faster cuz bitwise operations)
-- parallel operations
 
 ### GUI
 
-- Add the CPU
 - animations
 
 
 (Cement-4, PyConnect-4 + Dementris where you forget the tiles lmao)
-
-
-
-
 
 
 move the cursor to the top cuz it makes more sense, make it point down.
