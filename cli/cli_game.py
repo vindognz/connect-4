@@ -360,9 +360,6 @@ def play_vs_computer():
     elif inp in ["y", "yellow"]:
         play_game(cpu_move_provider, local_move_provider)
 
-def cpu_vs_cpu():
-    play_game(cpu_move_provider, cpu_move_provider)
-
 # ===========================
 # |           Menu          |
 # ===========================
@@ -478,9 +475,8 @@ while True:
     print("1. Player vs Player (same device)")
     print("2. Player vs Player (LAN)")
     print("3. Player vs CPU")
-    print("4. CPU vs CPU")
-    print("5. Edit settings")
-    print("6. Quit")
+    print("4. Edit settings")
+    print("5. Quit")
     choice = input("Choose 1-4: ").strip()
     if choice == "1":
         play_local_pvp()
@@ -492,10 +488,8 @@ while True:
     elif choice == "3":
         play_vs_computer()
     elif choice == "4":
-        cpu_vs_cpu()
-    elif choice == "5":
         edit_settings()
-    elif choice == "6":
+    elif choice == "5":
         break
     else:
         input("Invalid choice. Press ENTER to try again...")
