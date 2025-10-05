@@ -1,9 +1,4 @@
-# SGR color constants
-# rene-d 2018, modified 2025 for background support
-
 class Colours:
-    """ ANSI color codes """
-
     # Foreground colours
     BLACK = "\033[0;30m"
     RED = "\033[0;31m"
@@ -47,23 +42,8 @@ class Colours:
     UNDERLINE = "\033[4m"
     BLINK = "\033[5m"
     NEGATIVE = "\033[7m"
-    CROSSED = "\033[9m"
+    STRIKETHROUGH = "\033[9m"
     END = "\033[0m"
 
-    # Cancel codes if not in a TTY
-    import sys, platform, ctypes
-    if not sys.stdout.isatty():
-        for _ in dir():
-            if isinstance(_, str) and _[0] != "_":
-                locals()[_] = ""
-    else:
-        if platform.system() == "Windows":
-            kernel32 = ctypes.windll.kernel32
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-            del kernel32
-
-
 if __name__ == '__main__':
-    for i in dir(Colours):
-        if i[0:1] != "_" and i != "END":
-            print("{:>20} {}".format(i, getattr(Colours, i) + i + Colours.END))
+    print("no")
