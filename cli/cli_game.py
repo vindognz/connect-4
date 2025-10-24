@@ -347,7 +347,7 @@ def play_lan_client():
 def play_vs_computer():
 
     while True:
-        inp = input("Do you want to play as red or yellow? ")
+        inp = input("Do you want to play as red or yellow? ").lower()
         try:
             if not inp in ["r", "red", "y", "yellow"]:
                 raise ValueError
