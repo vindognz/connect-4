@@ -2,13 +2,13 @@ from colours import Colours as C
 import random
 import json
 
-# ===========================
-# |     Helper functions    |
-# ===========================
 
+# Helper functions
+# Clears the console by printing an ANSI sequence
 def clear():
     print(end='\033[2J\033[1;1H',flush=True)
 
+# Returns the coloured version of a tile from the raw 'R' or 'Y'
 def colourTile(tile):
     try:
         with open("settings.json", "r") as f:
@@ -55,6 +55,7 @@ def colourTile(tile):
 
     return tile
 
+# Prints the board in a clean, easily understandable manner.
 def printBoard(board):
 
     try:
@@ -85,7 +86,8 @@ def printBoard(board):
 
     print(f"{top}\n{'\n'.join(rows)}\n{bottom}")
 
-def getIntInput(prompt, board=None):
+# Prompts you for a column until you enter a valid one
+def getColInput(prompt, board=None):
     while True:
         inp = input(prompt)
         try:
@@ -99,17 +101,24 @@ def getIntInput(prompt, board=None):
                 printBoard(board)
             print("Only integers 1-7 allowed")
 
+# Checks for a 4-in-a-row
 def checkWin(board, player):
     rows, cols = (6, 7)
     winCount = 4
+    
+    # Horizontal
     for row in range(rows):
         for col in range(cols - winCount + 1):
             if all(board[col + i][row] == player for i in range(winCount)):
                 return [(col + i, row) for i in range(winCount)]
+            
+    # Vertical
     for col in range(cols):
         for row in range(rows - winCount + 1):
             if all(board[col][row + i] == player for i in range(winCount)):
                 return [(col, row + i) for i in range(winCount)]
+            
+    # Diagonal
     for col in range(cols - winCount + 1):
         for row in range(rows - winCount + 1):
             if all(board[col + i][row + i] == player for i in range(winCount)):
@@ -119,12 +128,14 @@ def checkWin(board, player):
             if all(board[col + i][row - i] == player for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
 
+# Checks if the board is full
 def checkFull(board):
     if all('O' not in col for col in board):
         return True
 
     return False
 
+# Checks if the game is a draw, win for red or win for yellow (for the CPU)
 def isTerminalNode(board):
     if checkWin(board, 'R'):
         return "WinX"
@@ -135,6 +146,7 @@ def isTerminalNode(board):
 
     return False
 
+# Evaluates a board position
 def evalWindow(window, player):
     opponent = 'Y' if player == 'R' else 'R'
 
@@ -155,6 +167,7 @@ def evalWindow(window, player):
 
     return score
 
+# Provides a score for each position, using the above evalWindow function
 def evalPositionForPlayer(board, player):
     score = 0
 
@@ -192,11 +205,14 @@ def evalPositionForPlayer(board, player):
 
     return score
 
+# Returns the position evaluation
+# Where a positive value means red is winning and a negative value means yellow is winning
 def evalPosition(board):
     red_score = evalPositionForPlayer(board, 'R')
     yellow_score = evalPositionForPlayer(board, 'Y')
     return red_score - yellow_score
 
+# The minimax algorithm that the computer uses
 def minimax(board, depth, alpha, beta, maximisingPlayer):
     isTerminal = isTerminalNode(board)
 
@@ -241,17 +257,17 @@ def minimax(board, depth, alpha, beta, maximisingPlayer):
                 break
         return minEval
 
-# ===========================
-# |  Player move providers  |
-# ===========================
+# Player move providers
+
+# Gets the human inputs locally
 def local_move_provider(player, board):
     # return random.choice([i for i, col in enumerate(board) if 'O' in col])
-    col = getIntInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ", board) - 1
+    col = getColInput(f"{colourTile(player)} where do you want to drop your tile? 1-7.\n>>> ", board) - 1
     return col
 
 from multiprocessing import Pool
 
-# --- New helper for multiprocessing ---
+# Helper for multiprocessing
 def evaluate_move(args):
     move, board, player, depth, maximising = args
     newBoard = [col.copy() for col in board]
@@ -260,6 +276,7 @@ def evaluate_move(args):
     score = minimax(newBoard, depth - 1, float('-inf'), float('inf'), not maximising)
     return move, score
 
+# Gets the CPUs move
 def cpu_move_provider(player, board):
     allowedMoves = [i for i, col in enumerate(board) if 'O' in col]
 
@@ -286,9 +303,7 @@ def cpu_move_provider(player, board):
     else:
         return min(results, key=lambda x: x[1])[0]
 
-# ===========================
-# |      Main game loop     |
-# ===========================
+# Main game loop
 def play_game(player1_get_move, player2_get_move):
     board = [['O'] * 6 for _ in range(7)]
     player = 'R'
@@ -328,12 +343,12 @@ def play_game(player1_get_move, player2_get_move):
 
         player = 'Y' if player == 'R' else 'R'
 
-# ===========================
-# |          Modes          |
-# ===========================
+# Modes
+# Player vs Player on the local machine
 def play_local_pvp():
     play_game(local_move_provider, local_move_provider)
 
+# Player vs Player LAN stubs
 def play_lan_server():
     print("PvP LAN is in maintenance due to exploits.!")
     input("Press ENTER to return to menu...")
@@ -344,8 +359,8 @@ def play_lan_client():
     input("Press ENTER to return to menu...")
     return
 
+# Player vs Computer
 def play_vs_computer():
-
     while True:
         inp = input("Do you want to play as red or yellow? ").lower()
         try:
@@ -360,20 +375,17 @@ def play_vs_computer():
     elif inp in ["y", "yellow"]:
         play_game(cpu_move_provider, local_move_provider)
 
-# ===========================
-# |           Menu          |
-# ===========================
-
+# Settings menu
 def edit_settings():
     settings_file = "settings.json"
 
-    # Default settings if no file exists
+    # Load the default settings if no settings.json exists
     default_settings = {
-        "display_mode": "coloured_text",  # options: coloured_text, coloured_background, emojis
-        "cpu_search_depth": 5             # options: 1-9
+        "display_mode": "coloured_text",
+        "cpu_search_depth": 5
     }
 
-    # Load existing settings
+    # Try to load the settings from settings.json
     try:
         with open(settings_file, "r") as f:
             try:
@@ -383,7 +395,7 @@ def edit_settings():
     except:
         settings = default_settings.copy()
 
-    # Keep a copy for detecting unsaved changes
+    # Store a copy of the settings for detecting unsaved changes
     original_settings = settings.copy()
 
     def save_settings():
@@ -406,7 +418,7 @@ def edit_settings():
         choice = input("Choose a setting to edit, or Save/Exit: ").strip().lower()
 
         if choice == "1":
-            # Display Mode submenu
+            # Display Mode menu
             while True:
                 clear()
                 print("=== Display Mode ===")
@@ -431,7 +443,7 @@ def edit_settings():
                     input("Invalid choice. Press ENTER to try again...")
 
         elif choice == "2":
-            # CPU Search Depth submenu
+            # CPU Search Depth menu
             while True:
                 clear()
                 print("=== CPU Search Depth ===")
@@ -469,6 +481,7 @@ def edit_settings():
         else:
             input("Invalid choice. Press ENTER to try again...")
 
+# Main menu loop
 while True:
     clear()
     print("How do you want to play?")

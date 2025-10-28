@@ -42,7 +42,7 @@ red_tile_hover     = (220, 0, 0)
 yellow_tile        = (255, 255, 0)
 yellow_tile_hover  = (220, 220, 0)
 
-# --- Backend board ---
+# backend board copy
 board = [["." for _ in range(ROWS)] for _ in range(COLS)]
 
 # game state
@@ -61,7 +61,7 @@ repeat_interval = 100
 
 cpu = False
 
-# --- Board logic ---
+# board logic
 def create_board():
     global board
     board = [["." for _ in range(ROWS)] for _ in range(COLS)]
@@ -75,38 +75,43 @@ def drop_tile(board, col, piece):
 
 def check_win(board, piece):
     winCount = 4
-    # Horizontal
+
+    # horizontal
     for row in range(ROWS):
         for col in range(COLS - winCount + 1):
             if all(board[col + i][row] == piece for i in range(winCount)):
                 return [(col + i, row) for i in range(winCount)]
-    # Vertical
+            
+    # vertical
     for col in range(COLS):
         for row in range(ROWS - winCount + 1):
             if all(board[col][row + i] == piece for i in range(winCount)):
                 return [(col, row + i) for i in range(winCount)]
-    # Diagonal \
+            
+    # diagonal
     for col in range(COLS - winCount + 1):
         for row in range(ROWS - winCount + 1):
             if all(board[col + i][row + i] == piece for i in range(winCount)):
                 return [(col + i, row + i) for i in range(winCount)]
-    # Diagonal /
     for col in range(COLS - winCount + 1):
         for row in range(winCount - 1, ROWS):
             if all(board[col + i][row - i] == piece for i in range(winCount)):
                 return [(col + i, row - i) for i in range(winCount)]
+            
     return None
 
+# checks if the board is full
 def is_board_full(board):
     return all(board[c][0] != "." for c in range(COLS))
 
+# returns the lowest empty row in a column
 def lowest_empty_row(board, col):
     for r in reversed(range(ROWS)):
         if board[col][r] == ".":
             return r
     return None
 
-# --- Sync backend board → buttons ---
+# sync the backend board and the frontend buttons
 def sync_board_to_buttons(board, tiles):
     for c in range(COLS):
         for r in range(ROWS):
@@ -121,7 +126,7 @@ def sync_board_to_buttons(board, tiles):
                 tiles[c][r].colour = tile_colour
                 tiles[c][r].hover_colour = tile_hover
 
-# --- Tile + Button setup ---
+# tile and button setup
 def create_tiles():
     global tiles, GRID_ORIGIN_X, GRID_ORIGIN_Y
     tiles = []
@@ -150,7 +155,7 @@ def create_tiles():
             col.append(tile)
         tiles.append(col)
 
-# --- Gameplay ---
+# gameplay
 def play_move(col_index, *_):
     global board_full, winner, player, last_tile, cpu
 
@@ -184,7 +189,7 @@ def tile_hover_event(tile: Button):
 def column_is_full(c: int) -> bool:
     return all(board[c][r] != "." for r in range(ROWS))
 
-# --- Ghost + Cursor ---
+# ghost and cursor
 def draw_ghost_piece(display):
     if not tiles or GRID_ORIGIN_X is None:
         return
@@ -218,7 +223,7 @@ def draw_cursor(display):
     ]
     pygame.draw.polygon(display, color, points)
 
-# --- Draw game ---
+# draw the game
 def draw_game(display):
     sync_board_to_buttons(board, tiles)
 
@@ -244,7 +249,7 @@ def draw_game(display):
         img = pygame.image.load(str(ROOT_PATH / "star.png"))
         tiles[last_tile[0]][last_tile[1]].img = img
 
-# --- Menus ---
+# menu button inits
 width, height = 280, 75
 x = WINDOW_WIDTH / 2 - width / 2
 y = WINDOW_HEIGHT / 2 - height / 2
@@ -281,6 +286,7 @@ game_over_text = Button(x, 50, width, height / 1.5, "text",
                         bg_colour, (0, 0, 0), text_colour,
                         None, font, 50, rounding=8)
 
+# start game button function
 def start_game(mode):
     global board_full, winner, player, cursor_col, last_tile, cpu
     board_full = False
@@ -293,12 +299,13 @@ def start_game(mode):
     cpu = (mode == "cpu")
     menu_manager.change_menu("game")
 
+# settings menu button function
 def draw_settings(display):
     text_surface = font.render("No settings yet :(", True, text_colour)
     text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 100))
     display.blit(text_surface, text_rect)
 
-# --- Menu manager ---
+# menu manager inits
 menu_manager = MenuManager(display, bg_colour)
 
 menu_manager.register_menu("start",
@@ -321,7 +328,7 @@ menu_manager.register_menu("game",
 
 menu_manager.change_menu("start")
 
-# --- Cursor move ---
+# cursor movement logic
 def move_cursor(direction: str):
     global cursor_col
     if direction == "left":
@@ -329,6 +336,7 @@ def move_cursor(direction: str):
     elif direction == "right":
         cursor_col = (cursor_col + 1) % COLS
 
+# evaluate a board position
 def evalWindow(window, piece):
     opponent = "y" if piece == "r" else "r"
     player_count = window.count(piece)
@@ -347,6 +355,7 @@ def evalWindow(window, piece):
         score -= 100
     return score
 
+# using the evalWindow function, give a score for the position
 def evalPositionForPlayer(board, piece):
     score = 0
     # center column preference
@@ -381,10 +390,11 @@ def evalPositionForPlayer(board, piece):
 
     return score
 
+# return the position evaluation where a positive value means red is winning and a negative value means yellow is winning
 def evalPosition(board):
     return evalPositionForPlayer(board, "r") - evalPositionForPlayer(board, "y")
 
-# --- CPU ---
+# CPU move provider
 def cpu_move_provider(depth=4):
     allowed = [c for c in range(COLS) if board[c][0] == "."]
     if not allowed:
@@ -441,7 +451,7 @@ def cpu_move_provider(depth=4):
             best_col = col
     return best_col
 
-# --- Main loop ---
+# the main loooooop
 if __name__ == "__main__":
     running = True
     while running:
@@ -473,13 +483,13 @@ if __name__ == "__main__":
 
             menu_manager.handle_event(event)
 
-        # CPU turn
+        # the cpus turn
         if cpu and player == 'y':
             move = cpu_move_provider()
             if move is not None:
                 play_move(move)
 
-        # Repeat key hold
+        # if holding down the cursor, repeatedly move it
         if key_held:
             key_held_time += dt
             if key_held_time > initial_delay:
